@@ -1,0 +1,96 @@
+@import "tailwindcss";
+
+
+:root {
+  --br-black: #0b0b0b;
+  --br-gray: #1a1a1a;
+  --br-red: #b91c1c;
+  --br-white: #f8f8f2;
+  --br-gold: #d4af37;
+}
+
+body {
+  background-color: var( --br-white);
+  color: var(--br-black);
+font-family: var(--font-poppins), sans-serif;
+  font-family: 'Poppins', sans-serif;
+  font-weight: 400;
+}
+.font-poppins {
+  font-family: 'Poppins', sans-serif;
+}
+
+
+a {
+  transition-property: color;
+  transition-duration: 200ms;
+}
+
+@keyframes fade-slide {
+  0% {
+    opacity: 0;
+    transform: translateY(-0.5rem);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-slide {
+  animation: fade-slide 0.3s ease-out;
+}
+
+.bg-br-black { background-color: var(--br-black); }
+.bg-br-gray { background-color: var(--br-gray); }
+.bg-br-red { background-color: var(--br-red); }
+.bg-br-white { background-color: var(--br-white); }
+.bg-br-gold { background-color: var(--br-gold); }
+
+.hover\:bg-br-black:hover { background-color: var(--br-black); }
+.hover\:bg-br-gray:hover { background-color: var(--br-gray); }
+.hover\:bg-br-red:hover { background-color: var(--br-red); }
+.hover\:bg-br-white:hover { background-color: var(--br-white); }
+.hover\:bg-br-gold:hover { background-color: var(--br-gold); }
+
+.text-br-black { color: var(--br-black); }
+.text-br-gray { color: var(--br-gray); }
+.text-br-red { color: var(--br-red); }
+.text-br-white { color: var(--br-white); }
+.text-br-gold { color: var(--br-gold); }
+
+.hover\:text-br-black:hover { color: var(--br-black); }
+.hover\:text-br-gray:hover { color: var(--br-gray); }
+.hover\:text-br-red:hover { color: var(--br-red); }
+.hover\:text-br-white:hover { color: var(--br-white); }
+.hover\:text-br-gold:hover { color: var(--br-gold); }
+
+.border-br-black { border-color: var(--br-black); }
+.border-br-gray { border-color: var(--br-gray); }
+.border-br-red { border-color: var(--br-red); }
+.border-br-white { border-color: var(--br-white); }
+.border-br-gold { border-color: var(--br-gold); }
+
+
+@keyframes pulseShadow {
+  0%, 100% {
+    box-shadow: 0 0 8px 0 rgba(0, 0, 0, 0.12);
+  }
+  50% {
+    box-shadow: 0 0 12px 4px rgba(0, 0, 0, 0.18);
+  }
+}
+
+.mobile-shadow {
+  box-shadow: 0 0 8px 0 rgba(0, 0, 0, 0.12);
+  animation: pulseShadow 3s infinite ease-in-out;
+}
+
+/* Apply only on mobile */
+@media (min-width: 768px) {
+  .mobile-shadow {
+    box-shadow: none;
+    border-bottom: 1px solid var(--br-gray);
+    animation: none;
+  }
+}
