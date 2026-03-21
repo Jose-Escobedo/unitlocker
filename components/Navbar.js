@@ -1,9 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import Image from "next/image";
 import { useState } from "react";
-import { Menu, X, User} from "lucide-react";
+import { Menu, X, User } from "lucide-react";
 import LogoutButton from "@/components/LogoutButton";
 import { useAuth } from "@/context/AuthContext";
 
@@ -11,136 +10,259 @@ export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
   const { user, loading } = useAuth();
 
-  // Skeleton for auth buttons
+  // VAULT navy palette
+  // #0a0c0f  — page bg / nav bg
+  // #111418  — surface / card
+  // #181c22  — surface2 / inputs
+  // #1e242c  — borders
+  // #5a6474  — muted text
+  // #8a95a3  — dim text
+  // #e8ecf0  — primary text
+  // #00e5a0  — accent green
+
   const AuthSkeleton = () => (
-    <div className="flex space-x-4">
-      <div className="w-24 h-10 bg-gray-700 rounded-full animate-pulse"></div>
-      <div className="w-24 h-10 bg-gray-700 rounded-full animate-pulse"></div>
+    <div className="flex space-x-3">
+      <div className="w-20 h-9 rounded-lg animate-pulse" style={{ background: "#181c22" }} />
+      <div className="w-20 h-9 rounded-lg animate-pulse" style={{ background: "#181c22" }} />
     </div>
   );
 
+  const navLinks = [
+    { href: "/features", label: "Features" },
+    { href: "/blog", label: "Blog" },
+    { href: "/contact", label: "Contact" },
+  ];
+
   return (
-   <header className="fixed top-0 left-0 w-full z-50 bg-[#0a0c0f] shadow-md px-4 md:px-6 py-3 min-h-[115px] font-sans">
-<nav className="w-full flex items-center justify-between h-full min-h-[115px]">
-
-  {/* LEFT: Logo */}
-  <div className="flex-shrink-0">
-    <Link href="/" className="inline-block">
-      <Image
-        src="https://firebasestorage.googleapis.com/v0/b/tortas-bffc7.appspot.com/o/unitlockerTEXTSPACE.png?alt=media&token=544ec011-bebf-47be-ab3b-d8672af1ff14"
-        alt="The Unit Locker Logo"
-  width={1280}
-  height={720}
-className="h-20 md:h-30 w-auto object-contain"
-        priority
-      />
-    </Link>
-  </div>
-
-  {/* RIGHT: Everything else */}
-  <div className="hidden md:flex items-center space-x-8 text-base text-br-white font-medium">
-
-    {/* Nav Links */}
-    <Link href="/vip" className="hover:text-br-gold transition-colors">
-      VIP Picks
-    </Link>
-    <Link href="/about" className="hover:text-br-gold transition-colors">
-      About
-    </Link>
-    <Link href="/contact" className="hover:text-br-gold transition-colors">
-      Contact
-    </Link>
-
-    {/* Auth Section */}
-    {loading ? (
-      <AuthSkeleton />
-    ) : !user ? (
-      <>
-        <Link
-          href="/get-started"
-          className="bg-gradient-to-r from-yellow-400 via-yellow-500 to-yellow-500 text-br-black px-6 py-2 rounded-full font-semibold shadow-md hover:shadow-lg transform hover:-translate-y-1 hover:brightness-105 transition-all duration-300"
-        >
-          Signup
-        </Link>
-        <Link
-          href="/login"
-          className="bg-gray-800 text-white px-6 py-2 rounded-full font-semibold shadow-md hover:shadow-lg transform hover:-translate-y-1 hover:brightness-110 transition-all duration-300"
-        >
-          Login
-        </Link>
-      </>
-    ) : (
-      <Link
-        href="/profile"
-        className="w-10 h-10 rounded-full bg-gray-900 flex items-center justify-center cursor-pointer hover:bg-gray-600 transition"
-        title="Profile Settings"
-      >
-        <User className="h-6 w-6 text-white" />
-      </Link>
-    )}
-
-  </div>
-
-  {/* Mobile Hamburger (unchanged) */}
-  <div className="md:hidden flex items-center ml-auto z-50">
-    <button
-      onClick={() => setIsOpen(!isOpen)}
-      className="text-br-white focus:outline-none"
-      aria-label="Toggle menu"
+    <header
+      className="fixed top-0 left-0 w-full z-50 px-6 md:px-10"
+      style={{
+        background: "rgba(10, 12, 15, 0.95)",
+        backdropFilter: "blur(20px)",
+        WebkitBackdropFilter: "blur(20px)",
+        borderBottom: "1px solid #1e242c",
+      }}
     >
-      {isOpen ? <X size={30} /> : <Menu size={30} />}
-    </button>
-  </div>
+      <nav className="max-w-7xl mx-auto flex items-center justify-between h-16">
 
-</nav>
+        {/* Logo */}
+        <Link href="/" className="inline-flex items-center gap-2.5 flex-shrink-0">
+          <div
+            className="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0"
+            style={{ background: "#00e5a0" }}
+          >
+            <svg width="16" height="18" viewBox="0 0 16 18" fill="none">
+              <path
+                d="M4.5 7.5V5a3.5 3.5 0 0 1 7 0v2.5"
+                stroke="white"
+                strokeWidth="1.8"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+              <rect x="1.5" y="7.5" width="13" height="9" rx="2.5" fill="white" />
+              <circle cx="8" cy="12" r="1.5" fill="#00e5a0" />
+              <rect x="7.25" y="12" width="1.5" height="2.5" rx="0.75" fill="#00e5a0" />
+            </svg>
+          </div>
+          <span
+            className="font-black text-xl leading-none"
+            style={{
+              fontFamily: "'Inter', sans-serif",
+              letterSpacing: "-0.5px",
+              color: "#e8ecf0",
+            }}
+          >
+            <span style={{ color: "#00e5a0" }}>UNIT</span>LOCKER
+          </span>
+        </Link>
 
-      {/* Mobile Menu */}
-      {isOpen && (
-        <div className="font-sans absolute top-full left-0 w-full bg-br-white bg-opacity-95 text-br-black flex flex-col items-center space-y-6 py-6 border-br-gold/30 shadow-xl backdrop-blur-sm transition-all duration-300 ease-in-out animate-fade-slide md:hidden">
-          <Link href="/vip" className="hover:text-br-gold text-lg" onClick={() => setIsOpen(false)}>
-            VIP Picks
-          </Link>
-          <Link href="/about" className="hover:text-br-gold text-lg" onClick={() => setIsOpen(false)}>
-            About
-          </Link>
-          <Link href="/contact" className="hover:text-br-gold text-lg" onClick={() => setIsOpen(false)}>
-            Contact
-          </Link>
+        {/* Desktop nav links */}
+        <div className="hidden md:flex items-center gap-8">
+          {navLinks.map(({ href, label }) => (
+            <Link
+              key={href}
+              href={href}
+              className="text-sm font-medium transition-colors duration-200"
+              style={{
+                color: "#a8b3bf",
+                fontFamily: "'DM Sans', sans-serif",
+              }}
+              onMouseEnter={e => (e.currentTarget.style.color = "#00e5a0")}
+              onMouseLeave={e => (e.currentTarget.style.color = "#a8b3bf")}
+            >
+              {label}
+            </Link>
+          ))}
+        </div>
 
+        {/* Desktop auth */}
+        <div className="hidden md:flex items-center gap-3">
           {loading ? (
             <AuthSkeleton />
           ) : !user ? (
             <>
               <Link
-                href="/get-started"
-                className="bg-gradient-to-r from-yellow-400 via-yellow-500 to-yellow-500 text-br-black px-6 py-3 rounded-full font-semibold shadow-md hover:shadow-lg transform hover:-translate-y-1 hover:brightness-105 transition-all duration-300 w-2/4 text-center"
-                onClick={() => setIsOpen(false)}
+                href="/login"
+                className="px-4 py-2 text-sm font-medium rounded-lg transition-all duration-200"
+                style={{
+                  color: "#8a95a3",
+                  fontFamily: "'DM Sans', sans-serif",
+                  background: "#111418",
+                  border: "1px solid #1e242c",
+                }}
+                onMouseEnter={e => {
+                  e.currentTarget.style.background = "#181c22";
+                  e.currentTarget.style.borderColor = "#2a3240";
+                  e.currentTarget.style.color = "#e8ecf0";
+                }}
+                onMouseLeave={e => {
+                  e.currentTarget.style.background = "#111418";
+                  e.currentTarget.style.borderColor = "#1e242c";
+                  e.currentTarget.style.color = "#8a95a3";
+                }}
               >
-                Signup
+                Log in
               </Link>
               <Link
-                href="/login"
-                className="bg-gray-800 text-white px-6 py-3 rounded-full font-semibold shadow-md hover:shadow-lg transform hover:-translate-y-1 hover:brightness-110 transition-all duration-300 w-2/4 text-center"
-                onClick={() => setIsOpen(false)}
+                href="/get-started"
+                className="px-4 py-2 text-sm font-semibold rounded-lg transition-all duration-200"
+                style={{
+                  background: "#00e5a0",
+                  color: "#0a0c0f",
+                  fontFamily: "'DM Sans', sans-serif",
+                }}
+                onMouseEnter={e => {
+                  e.currentTarget.style.boxShadow = "0 0 24px rgba(0,229,160,0.35)";
+                  e.currentTarget.style.background = "#00f0aa";
+                }}
+                onMouseLeave={e => {
+                  e.currentTarget.style.boxShadow = "none";
+                  e.currentTarget.style.background = "#00e5a0";
+                }}
               >
-                Login
+                Get Started
               </Link>
             </>
           ) : (
-            <>
-
             <Link
-                href="/profile"
-                className="text-lg hover:text-br-gold mt-2"
-                onClick={() => setIsOpen(false)}
-              >
-                Profile Settings
-              </Link>
-              <LogoutButton />
-              
-              
-            </>
+              href="/profile"
+              className="w-9 h-9 rounded-lg flex items-center justify-center transition-all duration-200"
+              style={{
+                background: "#111418",
+                border: "1px solid #1e242c",
+              }}
+              title="Profile"
+              onMouseEnter={e => {
+                e.currentTarget.style.background = "rgba(0,229,160,0.1)";
+                e.currentTarget.style.borderColor = "rgba(0,229,160,0.3)";
+              }}
+              onMouseLeave={e => {
+                e.currentTarget.style.background = "#111418";
+                e.currentTarget.style.borderColor = "#1e242c";
+              }}
+            >
+              <User size={16} style={{ color: "#8a95a3" }} />
+            </Link>
           )}
+        </div>
+
+        {/* Mobile hamburger */}
+        <button
+          onClick={() => setIsOpen(!isOpen)}
+          className="md:hidden flex items-center justify-center w-9 h-9 rounded-lg transition-all duration-200"
+          style={{
+            background: "#111418",
+            border: "1px solid #1e242c",
+            color: "#8a95a3",
+          }}
+          aria-label="Toggle menu"
+        >
+          {isOpen ? <X size={18} /> : <Menu size={18} />}
+        </button>
+      </nav>
+
+      {/* Mobile menu */}
+      {isOpen && (
+        <div
+          className="md:hidden pb-6 pt-2 flex flex-col gap-1"
+          style={{
+            borderTop: "1px solid #1e242c",
+          }}
+        >
+          {navLinks.map(({ href, label }) => (
+            <Link
+              key={href}
+              href={href}
+              onClick={() => setIsOpen(false)}
+              className="px-3 py-3 text-sm font-medium rounded-lg transition-colors duration-200"
+              style={{
+                color: "#a8b3bf",
+                fontFamily: "'DM Sans', sans-serif",
+              }}
+              onMouseEnter={e => {
+                e.currentTarget.style.color = "#00e5a0";
+              }}
+              onMouseLeave={e => {
+                e.currentTarget.style.color = "#a8b3bf";
+              }}
+            >
+              {label}
+            </Link>
+          ))}
+
+          <div
+            className="flex flex-col gap-2 mt-3 pt-4"
+            style={{ borderTop: "1px solid #1e242c" }}
+          >
+            {loading ? (
+              <AuthSkeleton />
+            ) : !user ? (
+              <>
+                <Link
+                  href="/get-started"
+                  onClick={() => setIsOpen(false)}
+                  className="w-full text-center py-3 text-sm font-semibold rounded-lg transition-all duration-200"
+                  style={{
+                    background: "#00e5a0",
+                    color: "#0a0c0f",
+                    fontFamily: "'DM Sans', sans-serif",
+                  }}
+                >
+                  Get Started
+                </Link>
+                <Link
+                  href="/login"
+                  onClick={() => setIsOpen(false)}
+                  className="w-full text-center py-3 text-sm font-medium rounded-lg transition-all duration-200"
+                  style={{
+                    background: "#111418",
+                    border: "1px solid #1e242c",
+                    color: "#8a95a3",
+                    fontFamily: "'DM Sans', sans-serif",
+                  }}
+                >
+                  Log in
+                </Link>
+              </>
+            ) : (
+              <>
+                <Link
+                  href="/profile"
+                  onClick={() => setIsOpen(false)}
+                  className="w-full text-center py-3 text-sm font-medium rounded-lg transition-all duration-200"
+                  style={{
+                    background: "#111418",
+                    border: "1px solid #1e242c",
+                    color: "#8a95a3",
+                    fontFamily: "'DM Sans', sans-serif",
+                  }}
+                >
+                  Profile Settings
+                </Link>
+                <LogoutButton />
+              </>
+            )}
+          </div>
         </div>
       )}
     </header>

@@ -1,9 +1,9 @@
 import Navbar from '@/components/Navbar';
 import './globals.css';
 import { AuthProvider } from "@/context/AuthContext";
-import { SpeedInsights } from "@vercel/speed-insights/next"
+import { SpeedInsights } from "@vercel/speed-insights/next";
 
-import { Poppins } from 'next/font/google';
+import { Poppins, Manrope } from 'next/font/google';
 import Footer from '@/components/Footer';
 
 const poppins = Poppins({
@@ -13,25 +13,38 @@ const poppins = Poppins({
   display: 'swap',
 });
 
+const manrope = Manrope({
+  subsets: ["latin"],
+  weight: ["400", "500", "600", "700"],
+  variable: "--font-manrope",
+});
+
 export const metadata = {
-  title: 'The Bookie Reaper | Crush the Spread, Reap the Bookie',
-  description: 'Join The Bookie Reaper — a premium sports picks experience where the bookie meets his fate. Get deadly-accurate bets and dominate the line.',
-  keywords: ['sports betting', 'VIP picks', 'sports handicapping', 'The Bookie Reaper', 'betting picks', 'reaper picks'],
-  authors: [{ name: 'The Bookie Reaper' }],
-  creator: 'The Bookie Reaper',
+  title: 'UnitLocker | Bankroll Management for Smart Bettors',
+  description:
+    'Track your units, manage your bankroll, and stay disciplined with UnitLocker. Built for serious bettors who want long-term profitability.',
+  keywords: [
+    'bankroll management',
+    'sports betting tracker',
+    'unit tracking',
+    'bet tracking app',
+    'sports betting analytics',
+    'UnitLocker'
+  ],
+  authors: [{ name: 'UnitLocker' }],
+  creator: 'UnitLocker',
 };
 
 export default function RootLayout({ children }) {
   return (
-    <html lang="en" className={poppins.variable}>
-      <body className='font.sans'>
-         <AuthProvider>
-        <Navbar />
-        {children}
-         <SpeedInsights /> {/* Vercel Tracking Script */}
-        <Footer />
+    <html lang="en" className={`${poppins.variable} ${manrope.variable}`}>
+      <body className="font-sans">
+        <AuthProvider>
+          <Navbar />
+          {children}
+          <SpeedInsights />
+          <Footer />
         </AuthProvider>
-       
       </body>
     </html>
   );
