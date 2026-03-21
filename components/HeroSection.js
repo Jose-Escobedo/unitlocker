@@ -130,9 +130,9 @@ export default function HeroSection() {
                 Start for free
                 <ArrowRight size={15} />
               </Link>
-              <Link
-                href="/dashboard"
-                className="inline-flex items-center justify-center px-6 py-3 rounded-lg font-semibold text-sm transition-all duration-200"
+            <button
+                onClick={() => document.getElementById('how-it-works')?.scrollIntoView({ behavior: 'smooth' })}
+                className="inline-flex cursor-pointer items-center justify-center px-6 py-3 rounded-lg font-semibold text-sm transition-all duration-200"
                 style={{
                   fontFamily: "'DM Sans', sans-serif",
                   background: '#111418',
@@ -149,7 +149,7 @@ export default function HeroSection() {
                 }}
               >
                 See how it works
-              </Link>
+              </button>
             </div>
 
             {/* Social proof */}
