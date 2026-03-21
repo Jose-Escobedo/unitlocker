@@ -2,8 +2,8 @@ import FavoriteSites from "@/components/FavoriteSites";
 import HeroSection from "@/components/HeroSection";
 import HowItWorks from "@/components/HowItWorks";
 import NewsletterForm from "@/components/NewsletterForm";
-import RecentWins from "@/components/RecentWins";
 import MLBPicksSectionTeaser from "@/components/MLBPicksSectionTeaser";
+import FeaturesSection from "@/components/FeaturesSection";
 
 
 export default function Home() {
@@ -12,7 +12,7 @@ export default function Home() {
       <HeroSection/>
       <HowItWorks/>
     
-  <RecentWins/>
+  <FeaturesSection/>
     <FavoriteSites/>
      <MLBPicksSectionTeaser/>
       <NewsletterForm/>
