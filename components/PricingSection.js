@@ -1,7 +1,8 @@
 'use client';
 
 import Link from 'next/link';
-import { Check, Lock, BarChart2, TrendingUp, Star, BarChart, Target, Percent, Trophy, Bell } from 'lucide-react';
+import { useState } from 'react';
+import { Check, Lock, BarChart2, TrendingUp, Star, BarChart, Target, Percent, Trophy, Bell, MessageCircle } from 'lucide-react';
 
 const freeTier = [
   { icon: <Lock size={14} />, label: 'Bankroll tracking' },
@@ -19,10 +20,12 @@ const proTier = [
   { icon: <Percent size={14} />, label: 'Odds range analysis' },
   { icon: <TrendingUp size={14} />, label: 'Average stake & average odds' },
   { icon: <BarChart2 size={14} />, label: 'Most profitable sport & bet type' },
-  { icon: <Trophy size={14} />, label: 'Advanced streak analytics' },
+  { icon: <MessageCircle size={14} />, label: 'Premium Discord Access' },
 ];
 
 export default function PricingSection() {
+  const [annual, setAnnual] = useState(false);
+
   return (
     <section
       className="relative py-28 px-6 md:px-12 overflow-hidden"
@@ -79,11 +82,53 @@ export default function PricingSection() {
             <span style={{ color: '#00e5a0' }}>Upgrade when you're ready.</span>
           </h2>
           <p
-            className="text-base max-w-lg mx-auto"
+            className="text-base max-w-lg mx-auto mb-8"
             style={{ color: '#5a6474', fontFamily: "'DM Sans', sans-serif" }}
           >
             No credit card required. All core features are free forever. Pro unlocks advanced analytics when it launches.
           </p>
+
+          {/* Billing toggle */}
+          <div className="inline-flex items-center gap-3">
+            <span
+              className="text-sm"
+              style={{ color: annual ? '#5a6474' : '#e8ecf0', fontFamily: "'DM Sans', sans-serif", transition: 'color 0.2s' }}
+            >
+              Monthly
+            </span>
+            <button
+              onClick={() => setAnnual(!annual)}
+              className="relative w-11 h-6 rounded-full transition-all duration-200 flex-shrink-0"
+              style={{ background: annual ? '#00e5a0' : '#1e242c' }}
+            >
+              <div
+                className="absolute top-1 w-4 h-4 rounded-full transition-all duration-200"
+                style={{
+                  background: '#e8ecf0',
+                  left: annual ? 'calc(100% - 20px)' : '4px',
+                }}
+              />
+            </button>
+            <div className="flex items-center gap-2">
+              <span
+                className="text-sm"
+                style={{ color: annual ? '#e8ecf0' : '#5a6474', fontFamily: "'DM Sans', sans-serif", transition: 'color 0.2s' }}
+              >
+                Annual
+              </span>
+              <span
+                className="text-xs px-2 py-0.5 rounded-full font-medium"
+                style={{
+                  background: 'rgba(0,229,160,0.1)',
+                  border: '1px solid rgba(0,229,160,0.2)',
+                  color: '#00e5a0',
+                  fontFamily: "'DM Mono', monospace",
+                }}
+              >
+                Save 33%
+              </span>
+            </div>
+          </div>
         </div>
 
         {/* Pricing cards */}
@@ -208,21 +253,29 @@ export default function PricingSection() {
               >
                 Pro
               </div>
-              <div
-                className="text-4xl font-bold tracking-tight leading-none mb-1"
-                style={{
-                  color: '#e8ecf0',
-                  fontFamily: "'Inter', sans-serif",
-                  letterSpacing: '-0.03em',
-                }}
-              >
-                TBD
+              <div className="flex items-end gap-2">
+                <div
+                  className="text-4xl font-bold tracking-tight leading-none"
+                  style={{
+                    color: '#e8ecf0',
+                    fontFamily: "'Inter', sans-serif",
+                    letterSpacing: '-0.03em',
+                  }}
+                >
+                  {annual ? '$6.67' : '$9.99'}
+                </div>
+                <div
+                  className="text-sm mb-1"
+                  style={{ color: '#5a6474', fontFamily: "'DM Sans', sans-serif" }}
+                >
+                  / month
+                </div>
               </div>
               <div
-                className="text-sm mt-2"
+                className="text-xs mt-1"
                 style={{ color: '#5a6474', fontFamily: "'DM Sans', sans-serif" }}
               >
-                Pricing announced at launch.
+                {annual ? 'Billed $79.99/year' : 'Billed monthly'}
               </div>
             </div>
 
