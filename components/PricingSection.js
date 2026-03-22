@@ -79,7 +79,7 @@ export default function PricingSection() {
             }}
           >
             Start free.{' '}
-            <span style={{ color: '#00e5a0' }}>Upgrade when you're ready.</span>
+            <span style={{ color: '#00e5a0' }}>Upgrade when you&apos;re ready.</span>
           </h2>
           <p
             className="text-base max-w-lg mx-auto mb-8"

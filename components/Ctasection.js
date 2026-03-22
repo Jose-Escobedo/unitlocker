@@ -118,7 +118,7 @@ export default function CTASection() {
               className="text-sm font-medium"
               style={{ color: '#00e5a0', fontFamily: "'DM Sans', sans-serif" }}
             >
-              You're on the list! We'll be in touch.
+              You're on the list! We&apos;ll be in touch.
             </span>
           </div>
         ) : (

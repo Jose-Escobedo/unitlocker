@@ -82,7 +82,7 @@ export default function FAQSection() {
             }}
           >
             Questions?{' '}
-            <span style={{ color: '#00e5a0' }}>We've got answers.</span>
+            <span style={{ color: '#00e5a0' }}>We&apos;ve got answers.</span>
           </h2>
           <p
             className="text-base"
