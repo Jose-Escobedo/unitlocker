@@ -90,7 +90,7 @@ a {
 .hover\:bg-ul-surface2:hover  { background-color: var(--ul-surface2); }
 .hover\:border-ul-accent:hover { border-color: var(--ul-accent); }
 
-/* ── Legacy Bookie Reaper utility classes kept for backward compat ── */
+/* ── Legacy Bookie Reaper utility classes kept for backwards compat ── */
 .bg-br-black  { background-color: var(--br-black); }
 .bg-br-gray   { background-color: var(--br-gray); }
 .bg-br-red    { background-color: var(--br-red); }
