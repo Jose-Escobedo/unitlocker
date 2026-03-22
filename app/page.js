@@ -1,9 +1,10 @@
 import HeroSection from "@/components/HeroSection";
 import HowItWorks from "@/components/HowItWorks";
 import NewsletterForm from "@/components/NewsletterForm";
-import MLBPicksSectionTeaser from "@/components/MLBPicksSectionTeaser";
+
 import FeaturesSection from "@/components/FeaturesSection";
 import PricingSection from "@/components/PricingSection";
+import FAQSection from "@/components/Faqsection";
 
 
 export default function Home() {
@@ -14,7 +15,7 @@ export default function Home() {
     
   <FeaturesSection/>
   <PricingSection/>
-     <MLBPicksSectionTeaser/>
+<FAQSection/>
       <NewsletterForm/>
     </main>
   );

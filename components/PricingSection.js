@@ -10,7 +10,7 @@ const freeTier = [
   { icon: <TrendingUp size={14} />, label: 'Win / loss / streak stats' },
   { icon: <Star size={14} />, label: 'Gamification (XP, ranks, achievements)' },
   { icon: <Check size={14} />, label: 'Unlimited bet logging' },
-  { icon: <Check size={14} />, label: 'All sports supported' },
+  
 ];
 
 const proTier = [
@@ -85,7 +85,7 @@ export default function PricingSection() {
             className="text-base max-w-lg mx-auto mb-8"
             style={{ color: '#5a6474', fontFamily: "'DM Sans', sans-serif" }}
           >
-            No credit card required. All core features are free forever. Pro unlocks advanced analytics when it launches.
+            No credit card required. Pro unlocks advanced features, analytics and access to our premium discord when it launches.
           </p>
 
           {/* Billing toggle */}
@@ -98,7 +98,7 @@ export default function PricingSection() {
             </span>
             <button
               onClick={() => setAnnual(!annual)}
-              className="relative w-11 h-6 rounded-full transition-all duration-200 flex-shrink-0"
+              className="relative cursor-pointer w-11 h-6 rounded-full transition-all duration-200 flex-shrink-0"
               style={{ background: annual ? '#00e5a0' : '#1e242c' }}
             >
               <div
@@ -164,7 +164,7 @@ export default function PricingSection() {
                 className="text-sm mt-2"
                 style={{ color: '#5a6474', fontFamily: "'DM Sans', sans-serif" }}
               >
-                Free forever. No credit card needed.
+                No credit card needed.
               </div>
             </div>
 
@@ -310,7 +310,7 @@ export default function PricingSection() {
 
             {/* CTA — notify me */}
             <button
-              className="w-full flex items-center justify-center gap-2 py-3 rounded-lg font-semibold text-sm transition-all duration-200"
+              className="w-full cursor-pointer flex items-center justify-center gap-2 py-3 rounded-lg font-semibold text-sm transition-all duration-200"
               style={{
                 background: 'rgba(245,200,66,0.08)',
                 border: '1px solid rgba(245,200,66,0.25)',
@@ -337,7 +337,7 @@ export default function PricingSection() {
           {[
             'No credit card required',
             'Cancel anytime',
-            'All sports supported',
+           
           ].map((item, i) => (
             <div key={i} className="flex items-center gap-2">
               <div className="w-1.5 h-1.5 rounded-full" style={{ background: '#00e5a0' }} />
