@@ -6,7 +6,7 @@ import { ChevronDown } from 'lucide-react';
 const faqs = [
   {
     q: "What's included in the free plan?",
-    a: "The free plan includes everything you need to manage your bankroll effectively — bet logging and history, real-time bankroll tracking, win/loss/streak stats, and the full gamification system including XP, ranks, and achievements. No credit card required, no time limit. Free forever.",
+    a: "The free plan includes everything you need to manage your bankroll effectively — bet logging and history, real-time bankroll tracking, win/loss/streak stats, and the full gamification system including XP, ranks, and achievements. No credit card required, no time limit.",
   },
   {
     q: "How does the gamification work?",
@@ -18,7 +18,7 @@ const faqs = [
   },
   {
     q: "What do I get with the Pro Discord community?",
-    a: "Pro members get access to a private Discord server with picks and analysis from verified cappers as well as the wider UnitLocker community. It's a space for serious bettors to share insight, discuss lines, and hold each other accountable — not a tipster spam channel.",
+    a: "Pro members get access to a private Discord server with picks and analysis from verified cappers as well as the wider UnitLocker community. It's a space for serious bettors to share insight, discuss lines, and help each other out.",
   },
   {
     q: "Can I cancel anytime?",
