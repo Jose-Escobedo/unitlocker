@@ -28,7 +28,7 @@
 body {
   background-color: var(--ul-bg);
   color: var(--ul-text);
-  font-family: 'DM Sans', 'Inter', sans-serif;
+  font-family: var(--font-dm-sans), 'DM Sans', sans-serif;
   font-weight: 400;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
@@ -90,7 +90,7 @@ a {
 .hover\:bg-ul-surface2:hover  { background-color: var(--ul-surface2); }
 .hover\:border-ul-accent:hover { border-color: var(--ul-accent); }
 
-/* ── Legacy Bookie Reaper utility classes kept for backwards compat ── */
+/* ── Legacy Bookie Reaper utility classes kept for backward compat ── */
 .bg-br-black  { background-color: var(--br-black); }
 .bg-br-gray   { background-color: var(--br-gray); }
 .bg-br-red    { background-color: var(--br-red); }
@@ -153,13 +153,13 @@ a {
 
 /* ── Font helpers ── */
 .font-mono-ul {
-  font-family: 'DM Mono', monospace;
+  font-family: var(--font-dm-mono), 'DM Mono', monospace;
 }
 .font-sans-ul {
-  font-family: 'DM Sans', sans-serif;
+  font-family: var(--font-dm-sans), 'DM Sans', sans-serif;
 }
 .font-display-ul {
-  font-family: 'Inter', sans-serif;
+  font-family: var(--font-inter), 'Inter', sans-serif;
   font-weight: 800;
   letter-spacing: -0.03em;
 }
