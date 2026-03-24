@@ -257,7 +257,7 @@ export default function TermsOfUse() {
             style={{ borderTop: '1px solid #1e242c' }}
           >
             <Link
-              href="/privacy"
+              href="/privacy-policy"
               className="text-sm transition-colors duration-200"
               style={{ color: '#5a6474', fontFamily: "'DM Sans', sans-serif" }}
               onMouseEnter={e => e.currentTarget.style.color = '#00e5a0'}
