@@ -10,8 +10,8 @@ const links = {
   ],
   Company: [
     { label: 'Contact', href: '/contact' },
-    { label: 'Privacy Policy', href: '/privacy' },
-    { label: 'Terms of Service', href: '/terms' },
+    { label: 'Privacy Policy', href: '/privacy-policy' },
+    { label: 'Terms of Service', href: '/terms-of-use' },
   ],
   Community: [
     { label: 'Discord', href: 'https://discord.gg/', external: true },
