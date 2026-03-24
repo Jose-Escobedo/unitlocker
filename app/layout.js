@@ -2,6 +2,7 @@ import Navbar from '@/components/Navbar';
 import './globals.css';
 import { AuthProvider } from "@/context/AuthContext";
 import { SpeedInsights } from "@vercel/speed-insights/next";
+import { Analytics } from '@vercel/analytics/next';
 
 import { Poppins, Manrope } from 'next/font/google';
 import Footer from '@/components/Footer';
@@ -43,6 +44,7 @@ export default function RootLayout({ children }) {
           <Navbar />
           {children}
           <SpeedInsights />
+          <Analytics />
           <Footer />
         </AuthProvider>
       </body>
