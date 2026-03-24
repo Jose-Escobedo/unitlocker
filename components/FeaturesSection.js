@@ -65,6 +65,7 @@ const proFeatures = [
 export default function FeaturesSection() {
   return (
     <section
+      id="features"
       className="relative py-28 px-6 md:px-12 overflow-hidden"
       style={{ background: '#0a0c0f' }}
     >
