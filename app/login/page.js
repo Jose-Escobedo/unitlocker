@@ -82,7 +82,7 @@ export default function LoginPage() {
       if (res.ok) {
         await fetchUser();
         setMessage({ type: "success", text: "Logged in! Redirecting..." });
-        setTimeout(() => router.push("/vip"), 1000);
+        setTimeout(() => router.push("/dashboard"), 1000);
       } else {
         setMessage({ type: "error", text: data?.error || "Something went wrong." });
       }

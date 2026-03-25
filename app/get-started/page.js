@@ -96,7 +96,7 @@ export default function SignupPage() {
       if (res.ok) {
         setMessage({ type: "success", text: "Account created! Redirecting..." });
         await fetchUser();
-        setTimeout(() => router.replace("/vip"), 500);
+        setTimeout(() => router.replace("/dashboard"), 500);
       } else {
         setMessage({ type: "error", text: data?.error || "Something went wrong." });
       }
