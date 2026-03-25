@@ -23,7 +23,7 @@ export default function LoginPage() {
   const sanitizeInput = (str) => str.replace(/[<>]/g, "");
 
   useEffect(() => {
-    if (user) router.replace("/vip");
+    if (user) router.replace("/dashboard");
   }, [user, router]);
 
   const handleChange = (e) => {

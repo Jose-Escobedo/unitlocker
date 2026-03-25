@@ -18,7 +18,7 @@ export default function SignupPage() {
   const [showPassword, setShowPassword] = useState(false);
 
   useEffect(() => {
-    if (user) router.replace("/vip");
+    if (user) router.replace("/dashboard");
   }, [user, router]);
 
   const MAX_NAME = 50;
