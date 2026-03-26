@@ -1,4 +1,5 @@
 'use client';
+import BankrollCalendar from '@/components/BankrollCalendar';
 
 import { useState } from 'react';
 import {
@@ -801,6 +802,9 @@ export default function Dashboard() {
                 ))}
               </div>
             </div>
+
+            {/* Calendar */}
+            <BankrollCalendar />
 
             {/* Pro analytics teaser */}
             <div
