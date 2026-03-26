@@ -5,7 +5,8 @@ import {
   TrendingUp, TrendingDown, Plus, X, ChevronDown,
   Trophy, Star, Target, BarChart2, Wallet,
   CheckCircle2, XCircle, MinusCircle, Clock,
-  Flame, Zap, Lock
+  Flame, Zap, Lock, DollarSign, Percent,
+  Activity, Award, Crosshair, Layers
 } from 'lucide-react';
 
 // ── Mock data — replace with real API calls ──
@@ -31,12 +32,12 @@ const RANKS = [
 ];
 
 const ACHIEVEMENTS = [
-  { id: 'first_bet', icon: '🎯', name: 'First Blood', desc: 'Log your first bet', unlocked: true },
-  { id: 'streak_3', icon: '🔥', name: 'Hot Hand', desc: '3-bet win streak', unlocked: true },
-  { id: 'streak_5', icon: '⚡', name: 'On Fire', desc: '5-bet win streak', unlocked: false },
-  { id: 'ten_bets', icon: '🎲', name: 'Degenerate', desc: 'Log 10 bets', unlocked: false },
-  { id: 'doubled', icon: '💎', name: 'Double Up', desc: 'Double your bankroll', unlocked: false },
-  { id: 'fifty_bets', icon: '👑', name: 'Hall of Fame', desc: 'Log 50 bets', unlocked: false },
+  { id: 'first_bet', icon: 'target', name: 'First Blood', desc: 'Log your first bet', unlocked: true },
+  { id: 'streak_3', icon: 'flame', name: 'Hot Hand', desc: '3-bet win streak', unlocked: true },
+  { id: 'streak_5', icon: 'zap', name: 'On Fire', desc: '5-bet win streak', unlocked: false },
+  { id: 'ten_bets', icon: 'layers', name: 'Degenerate', desc: 'Log 10 bets', unlocked: false },
+  { id: 'doubled', icon: 'trending', name: 'Double Up', desc: 'Double your bankroll', unlocked: false },
+  { id: 'fifty_bets', icon: 'trophy', name: 'Hall of Fame', desc: 'Log 50 bets', unlocked: false },
 ];
 
 const SPORTS = ['🏀 NBA', '🏈 NFL', '⚾ MLB', '🏒 NHL', '⚽ Soccer', '🎾 Tennis', '🥊 MMA', '🏇 Horse', '🎲 Other'];
@@ -63,6 +64,28 @@ function getNextRank(xp) {
   return RANKS[Math.min(idx + 1, RANKS.length - 1)];
 }
 
+// ── Achievement Icon ──
+function AchievementIcon({ type, unlocked }) {
+  const color = unlocked ? '#f5c842' : '#2a3240';
+  const bg = unlocked ? 'rgba(245,200,66,0.1)' : '#181c22';
+  const icons = {
+    target: <Crosshair size={16} />,
+    flame: <Flame size={16} />,
+    zap: <Zap size={16} />,
+    layers: <Layers size={16} />,
+    trending: <TrendingUp size={16} />,
+    trophy: <Trophy size={16} />,
+  };
+  return (
+    <div
+      className="w-8 h-8 rounded-lg flex items-center justify-center"
+      style={{ background: bg, border: `1px solid ${unlocked ? 'rgba(245,200,66,0.2)' : '#1e242c'}`, color }}
+    >
+      {icons[type]}
+    </div>
+  );
+}
+
 // ── Stat Card ──
 function StatCard({ label, value, sub, color, icon }) {
   return (
@@ -74,7 +97,12 @@ function StatCard({ label, value, sub, color, icon }) {
         className="absolute top-0 left-0 right-0 h-0.5"
         style={{ background: color }}
       />
-      <div className="text-xl mb-3">{icon}</div>
+      <div
+        className="w-8 h-8 rounded-lg flex items-center justify-center mb-3"
+        style={{ background: `${color}18`, color }}
+      >
+        {icon}
+      </div>
       <div
         className="text-xs font-medium tracking-widest uppercase mb-1"
         style={{ color: '#5a6474', fontFamily: "'DM Mono', monospace" }}
@@ -141,17 +169,17 @@ function BetRow({ bet, onSettle }) {
         <div className="flex items-center gap-1.5 flex-shrink-0">
           <button
             onClick={() => onSettle(bet.id, 'win')}
-            className="px-2.5 py-1 rounded-lg text-xs font-medium transition-all duration-150"
+            className="px-2.5 py-1 rounded-lg text-xs font-medium transition-all duration-150 cursor-pointer"
             style={{ background: 'rgba(0,229,160,0.1)', border: '1px solid rgba(0,229,160,0.25)', color: '#00e5a0', fontFamily: "'DM Mono', monospace" }}
           >W</button>
           <button
             onClick={() => onSettle(bet.id, 'loss')}
-            className="px-2.5 py-1 rounded-lg text-xs font-medium transition-all duration-150"
+            className="px-2.5 py-1 rounded-lg text-xs font-medium transition-all duration-150 cursor-pointer"
             style={{ background: 'rgba(255,71,87,0.1)', border: '1px solid rgba(255,71,87,0.25)', color: '#ff4757', fontFamily: "'DM Mono', monospace" }}
           >L</button>
           <button
             onClick={() => onSettle(bet.id, 'push')}
-            className="px-2.5 py-1 rounded-lg text-xs font-medium transition-all duration-150"
+            className="px-2.5 py-1 rounded-lg text-xs font-medium transition-all duration-150 cursor-pointer"
             style={{ background: 'rgba(245,200,66,0.1)', border: '1px solid rgba(245,200,66,0.25)', color: '#f5c842', fontFamily: "'DM Mono', monospace" }}
           >P</button>
         </div>
@@ -231,7 +259,7 @@ function LogBetModal({ onClose, onSubmit, bankroll }) {
             </div>
             <button
               onClick={onClose}
-              className="w-8 h-8 rounded-lg flex items-center justify-center transition-all duration-200"
+              className="w-8 h-8 rounded-lg flex items-center justify-center transition-all duration-200 cursor-pointer"
               style={{ background: '#181c22', border: '1px solid #1e242c', color: '#5a6474' }}
               onMouseEnter={e => e.currentTarget.style.color = '#e8ecf0'}
               onMouseLeave={e => e.currentTarget.style.color = '#5a6474'}
@@ -341,7 +369,7 @@ function LogBetModal({ onClose, onSubmit, bankroll }) {
             {/* Submit */}
             <button
               type="submit"
-              className="w-full py-3 rounded-lg font-semibold text-sm transition-all duration-200 mt-1"
+              className="w-full py-3 rounded-lg font-semibold text-sm transition-all duration-200 mt-1 cursor-pointer"
               style={{ background: '#00e5a0', color: '#0a0c0f', fontFamily: "'DM Sans', sans-serif" }}
               onMouseEnter={e => { e.currentTarget.style.background = '#00f0aa'; e.currentTarget.style.boxShadow = '0 0 24px rgba(0,229,160,0.3)'; }}
               onMouseLeave={e => { e.currentTarget.style.background = '#00e5a0'; e.currentTarget.style.boxShadow = 'none'; }}
@@ -451,7 +479,7 @@ export default function Dashboard() {
           </div>
           <button
             onClick={() => setShowModal(true)}
-            className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl font-semibold text-sm transition-all duration-200"
+            className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl font-semibold text-sm transition-all duration-200 cursor-pointer"
             style={{ background: '#00e5a0', color: '#0a0c0f', fontFamily: "'DM Sans', sans-serif" }}
             onMouseEnter={e => { e.currentTarget.style.background = '#00f0aa'; e.currentTarget.style.boxShadow = '0 0 24px rgba(0,229,160,0.3)'; }}
             onMouseLeave={e => { e.currentTarget.style.background = '#00e5a0'; e.currentTarget.style.boxShadow = 'none'; }}
@@ -494,7 +522,7 @@ export default function Dashboard() {
             <button
               key={t.id}
               onClick={() => setTab(t.id)}
-              className="px-5 py-2 rounded-lg text-sm font-medium transition-all duration-200"
+              className="px-5 py-2 rounded-lg text-sm font-medium transition-all duration-200 cursor-pointer"
               style={{
                 background: tab === t.id ? '#181c22' : 'transparent',
                 color: tab === t.id ? '#e8ecf0' : '#5a6474',
@@ -518,28 +546,28 @@ export default function Dashboard() {
                 value={fmt(bankroll)}
                 sub={`${fmtSigned(totalPL)} all time`}
                 color="#00e5a0"
-                icon="💰"
+                icon={<Wallet size={16} />}
               />
               <StatCard
                 label="Win Rate"
                 value={`${winRate.toFixed(0)}%`}
                 sub={`${wins.length}W · ${losses.length}L · ${pushes.length}P`}
                 color="#ff6b35"
-                icon="🎯"
+                icon={<Crosshair size={16} />}
               />
               <StatCard
                 label="Streak"
                 value={streak === 0 ? '—' : streak > 0 ? `W${streak}` : `L${Math.abs(streak)}`}
                 sub="current streak"
                 color={streak > 0 ? '#00e5a0' : streak < 0 ? '#ff4757' : '#5a6474'}
-                icon="⚡"
+                icon={<Zap size={16} />}
               />
               <StatCard
                 label="ROI"
                 value={`${roi.toFixed(1)}%`}
                 sub={`${bets.length} total bets`}
                 color={roi >= 0 ? '#4d9fff' : '#ff4757'}
-                icon="📊"
+                icon={<Activity size={16} />}
               />
             </div>
 
@@ -622,13 +650,13 @@ export default function Dashboard() {
                           <p className="text-xs mt-0.5" style={{ color: '#5a6474', fontFamily: "'DM Mono', monospace" }}>{fmt(bet.stake)}</p>
                         </div>
                         <div className="flex gap-1">
-                          <button onClick={() => handleSettle(bet.id, 'win')} className="px-2 py-1 rounded text-xs" style={{ background: 'rgba(0,229,160,0.1)', color: '#00e5a0', fontFamily: "'DM Mono', monospace" }}>W</button>
-                          <button onClick={() => handleSettle(bet.id, 'loss')} className="px-2 py-1 rounded text-xs" style={{ background: 'rgba(255,71,87,0.1)', color: '#ff4757', fontFamily: "'DM Mono', monospace" }}>L</button>
+                          <button onClick={() => handleSettle(bet.id, 'win')} className="px-2 py-1 rounded text-xs cursor-pointer" style={{ background: 'rgba(0,229,160,0.1)', color: '#00e5a0', fontFamily: "'DM Mono', monospace" }}>W</button>
+                          <button onClick={() => handleSettle(bet.id, 'loss')} className="px-2 py-1 rounded text-xs cursor-pointer" style={{ background: 'rgba(255,71,87,0.1)', color: '#ff4757', fontFamily: "'DM Mono', monospace" }}>L</button>
                         </div>
                       </div>
                     ))}
                     {pending.length > 3 && (
-                      <button onClick={() => setTab('bets')} className="text-xs mt-auto" style={{ color: '#00e5a0', fontFamily: "'DM Mono', monospace" }}>
+                      <button onClick={() => setTab('bets')} className="text-xs mt-auto cursor-pointer" style={{ color: '#00e5a0', fontFamily: "'DM Mono', monospace" }}>
                         +{pending.length - 3} more →
                       </button>
                     )}
@@ -664,9 +692,7 @@ export default function Dashboard() {
                     }}
                     title={ach.desc}
                   >
-                    <span style={{ fontSize: '1.4rem', filter: ach.unlocked ? 'none' : 'grayscale(1) opacity(0.3)' }}>
-                      {ach.icon}
-                    </span>
+                    <AchievementIcon type={ach.icon} unlocked={ach.unlocked} />
                     <span
                       className="text-xs leading-tight"
                       style={{
@@ -694,7 +720,7 @@ export default function Dashboard() {
               </p>
               <button
                 onClick={() => setShowModal(true)}
-                className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg text-xs font-semibold transition-all duration-200"
+                className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg text-xs font-semibold transition-all duration-200 cursor-pointer"
                 style={{ background: 'rgba(0,229,160,0.1)', border: '1px solid rgba(0,229,160,0.2)', color: '#00e5a0', fontFamily: "'DM Mono', monospace" }}
               >
                 <Plus size={13} />
@@ -706,7 +732,9 @@ export default function Dashboard() {
                 className="flex flex-col items-center justify-center py-20 rounded-2xl"
                 style={{ background: '#111418', border: '1px solid #1e242c' }}
               >
-                <p className="text-3xl mb-3">🎰</p>
+                <div className="w-10 h-10 rounded-xl flex items-center justify-center mb-3" style={{ background: '#181c22', border: '1px solid #1e242c' }}>
+                  <Layers size={18} style={{ color: '#2a3240' }} />
+                </div>
                 <p className="text-sm" style={{ color: '#5a6474', fontFamily: "'DM Sans', sans-serif" }}>No bets yet. Log your first one!</p>
               </div>
             ) : (
@@ -806,7 +834,7 @@ export default function Dashboard() {
                   </p>
                 </div>
                 <button
-                  className="flex-shrink-0 px-4 py-2 rounded-lg text-xs font-semibold transition-all duration-200"
+                  className="flex-shrink-0 px-4 py-2 rounded-lg text-xs font-semibold transition-all duration-200 cursor-pointer"
                   style={{ background: 'rgba(245,200,66,0.1)', border: '1px solid rgba(245,200,66,0.25)', color: '#f5c842', fontFamily: "'DM Sans', sans-serif" }}
                   onMouseEnter={e => e.currentTarget.style.background = 'rgba(245,200,66,0.18)'}
                   onMouseLeave={e => e.currentTarget.style.background = 'rgba(245,200,66,0.1)'}
