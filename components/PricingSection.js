@@ -9,7 +9,6 @@ const freeTier = [
   { icon: <BarChart2 size={14} />, label: 'Bet logging & history' },
   { icon: <TrendingUp size={14} />, label: 'Win / loss / streak stats' },
   { icon: <Star size={14} />, label: 'Gamification (XP, ranks, achievements)' },
-  { icon: <Check size={14} />, label: 'Unlimited bet logging' },
   
 ];
 
