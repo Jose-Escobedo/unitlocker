@@ -27,11 +27,31 @@ export default function Navbar() {
     </div>
   );
 
-  const navLinks = [
+  const NavSkeleton = () => (
+    <div className="hidden md:flex items-center gap-8">
+      {[64, 48, 52, 56].map((w, i) => (
+        <div
+          key={i}
+          className="h-3.5 rounded-full animate-pulse"
+          style={{ width: w, background: "#181c22" }}
+        />
+      ))}
+    </div>
+  );
+
+  const guestLinks = [
     { href: "/#features", label: "Features" },
+    { href: "/pricing", label: "Pricing" },
     { href: "/blog", label: "Blog" },
     { href: "/contact", label: "Contact" },
   ];
+
+  const authLinks = [
+    { href: "/dashboard", label: "Dashboard" },
+    { href: "/blog", label: "Blog" },
+  ];
+
+  const navLinks = user ? authLinks : guestLinks;
 
   return (
     <header
@@ -77,23 +97,27 @@ export default function Navbar() {
         </Link>
 
         {/* Desktop nav links */}
-        <div className="hidden md:flex items-center gap-8">
-          {navLinks.map(({ href, label }) => (
-            <Link
-              key={href}
-              href={href}
-              className="text-sm font-medium transition-colors duration-200"
-              style={{
-                color: "#a8b3bf",
-                fontFamily: "'DM Sans', sans-serif",
-              }}
-              onMouseEnter={e => (e.currentTarget.style.color = "#00e5a0")}
-              onMouseLeave={e => (e.currentTarget.style.color = "#a8b3bf")}
-            >
-              {label}
-            </Link>
-          ))}
-        </div>
+        {loading ? (
+          <NavSkeleton />
+        ) : (
+          <div className="hidden md:flex items-center gap-8">
+            {navLinks.map(({ href, label }) => (
+              <Link
+                key={href}
+                href={href}
+                className="text-sm font-medium transition-colors duration-200"
+                style={{
+                  color: "#a8b3bf",
+                  fontFamily: "'DM Sans', sans-serif",
+                }}
+                onMouseEnter={e => (e.currentTarget.style.color = "#00e5a0")}
+                onMouseLeave={e => (e.currentTarget.style.color = "#a8b3bf")}
+              >
+                {label}
+              </Link>
+            ))}
+          </div>
+        )}
 
         {/* Desktop auth */}
         <div className="hidden md:flex items-center gap-3">

@@ -5,8 +5,9 @@ import { useAuth } from '@/context/AuthContext';
 import {
   User, Lock, CreditCard, Eye, EyeOff,
   CheckCircle2, Crosshair, Flame, Zap,
-  Layers, TrendingUp, Trophy, ChevronRight
+  Layers, TrendingUp, Trophy, ChevronRight, LogOut
 } from 'lucide-react';
+import { useRouter } from 'next/navigation';
 
 // ── Ranks ──
 const RANKS = [
@@ -184,8 +185,21 @@ const TABS = [
 ];
 
 export default function ProfilePage() {
-  const { user } = useAuth();
+  const { user, setUser } = useAuth();
+  const router = useRouter();
   const [tab, setTab] = useState('profile');
+  const [loggingOut, setLoggingOut] = useState(false);
+
+  const handleLogout = async () => {
+    setLoggingOut(true);
+    try {
+      await fetch('/api/auth/logout', { method: 'POST' });
+      setUser(null);
+      router.replace('/login');
+    } catch {
+      setLoggingOut(false);
+    }
+  };
 
   // Mock XP — replace with real data
   const xp = 145;
@@ -314,6 +328,35 @@ export default function ProfilePage() {
                   To update your name or email contact{' '}
                   <a href="mailto:support@unitlocker.com" style={{ color: '#5a6474' }}>support@unitlocker.com</a>
                 </p>
+
+                <div className="pt-4" style={{ borderTop: '1px solid #1e242c' }}>
+                  <button
+                    onClick={handleLogout}
+                    disabled={loggingOut}
+                    className="inline-flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 cursor-pointer"
+                    style={{
+                      background: 'rgba(255,71,87,0.06)',
+                      border: '1px solid rgba(255,71,87,0.15)',
+                      color: '#ff4757',
+                      fontFamily: "'DM Sans', sans-serif",
+                      cursor: loggingOut ? 'not-allowed' : 'pointer',
+                      opacity: loggingOut ? 0.6 : 1,
+                    }}
+                    onMouseEnter={e => {
+                      if (!loggingOut) {
+                        e.currentTarget.style.background = 'rgba(255,71,87,0.12)';
+                        e.currentTarget.style.borderColor = 'rgba(255,71,87,0.3)';
+                      }
+                    }}
+                    onMouseLeave={e => {
+                      e.currentTarget.style.background = 'rgba(255,71,87,0.06)';
+                      e.currentTarget.style.borderColor = 'rgba(255,71,87,0.15)';
+                    }}
+                  >
+                    <LogOut size={15} />
+                    {loggingOut ? 'Signing out...' : 'Sign out'}
+                  </button>
+                </div>
               </div>
             </Card>
 
@@ -567,7 +610,7 @@ export default function ProfilePage() {
                       Free Plan
                     </p>
                     <p className="text-xs mt-0.5" style={{ color: '#5a6474', fontFamily: "'DM Mono', monospace" }}>
-                      Free
+                      Free forever
                     </p>
                   </div>
                 </div>
@@ -594,6 +637,7 @@ export default function ProfilePage() {
                   'Bet logging & history',
                   'Win / loss / streak stats',
                   'Gamification (XP, ranks, achievements)',
+                  'All sports supported',
                 ].map((item, i) => (
                   <div key={i} className="flex items-center gap-2.5">
                     <CheckCircle2 size={14} style={{ color: '#00e5a0', flexShrink: 0 }} />
