@@ -9,6 +9,7 @@ import {
   Flame, Zap, Lock, DollarSign, Percent,
   Activity, Award, Crosshair, Layers
 } from 'lucide-react';
+import ProtectedRoute from '@/components/ProtectedRoute';
 
 // ── Mock data — replace with real API calls ──
 const MOCK_USER = { name: 'Alex' };
@@ -453,6 +454,7 @@ export default function Dashboard() {
   ];
 
   return (
+    <ProtectedRoute>
     <div className="min-h-screen pt-16" style={{ background: '#0a0c0f' }}>
       {showModal && (
         <LogBetModal
@@ -851,5 +853,6 @@ export default function Dashboard() {
         )}
       </div>
     </div>
+    </ProtectedRoute>
   );
 }

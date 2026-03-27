@@ -46,7 +46,7 @@ export default function Navbar() {
       <nav className="max-w-7xl mx-auto flex items-center justify-between h-16">
 
         {/* Logo */}
-        <Link href="/" className="inline-flex items-center gap-2.5 flex-shrink-0">
+        <Link href={user ? "/dashboard" : "/"} className="inline-flex items-center gap-2.5 flex-shrink-0">
           <div
             className="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0"
             style={{ background: "#00e5a0" }}
