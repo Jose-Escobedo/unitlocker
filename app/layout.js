@@ -4,6 +4,7 @@ import { AuthProvider } from "@/context/AuthContext";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import { Poppins, Manrope, Inter, DM_Sans, DM_Mono } from 'next/font/google';
 import Footer from '@/components/Footer';
+import Script from 'next/script';
 
 const poppins = Poppins({
   subsets: ['latin'],
@@ -63,13 +64,26 @@ export default function RootLayout({ children }) {
       className={`${poppins.variable} ${manrope.variable} ${inter.variable} ${dmSans.variable} ${dmMono.variable}`}
     >
       <body className="font-sans">
-        <AuthProvider>
-          <Navbar />
-          {children}
-          <SpeedInsights />
-          <Footer />
-        </AuthProvider>
-      </body>
+  <AuthProvider>
+    <Navbar />
+    {children}
+    <SpeedInsights />
+    <Footer />
+  </AuthProvider>
+
+  <Script
+    src="https://www.googletagmanager.com/gtag/js?id=G-C15BWB800H"
+    strategy="afterInteractive"
+  />
+  <Script id="google-analytics" strategy="afterInteractive">
+    {`
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-C15BWB800H');
+    `}
+  </Script>
+</body>
     </html>
   );
 }

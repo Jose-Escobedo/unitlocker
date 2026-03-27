@@ -152,19 +152,18 @@ export default function HeroSection() {
               </button>
             </div>
 
-            {/* Social proof */}
-            <div className="flex items-center gap-6 mt-10 lg:justify-start justify-center">
+  <div className="flex items-center gap-6 mt-10 lg:justify-start justify-center">
               {[
-                { value: '10K+', label: 'Bettors' },
-                { value: '$2.4M', label: 'Tracked' },
-                { value: '94%', label: 'Retention' },
+                { value: 'Early Access', label: 'Now Open' },
+                { value: 'Start', label: 'For free' },
+                { value: 'Pro', label: 'Coming Soon' },
               ].map((stat, i) => (
                 <div key={i} className="flex items-center gap-6">
                   {i > 0 && <div className="w-px h-7" style={{ background: '#1e242c' }} />}
                   <div className="flex flex-col">
                     <span
-                      className="text-xl font-bold leading-none"
-                      style={{ color: '#00e5a0', fontFamily: "'Inter', sans-serif" }}
+                      className="text-sm font-bold leading-none"
+                      style={{ color: '#00e5a0', fontFamily: "'Inter', sans-serif", letterSpacing: '-0.01em' }}
                     >
                       {stat.value}
                     </span>
@@ -293,3 +292,5 @@ export default function HeroSection() {
     </section>
   );
 }
+
+

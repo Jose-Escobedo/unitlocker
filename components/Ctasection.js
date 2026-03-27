@@ -118,7 +118,7 @@ export default function CTASection() {
               className="text-sm font-medium"
               style={{ color: '#00e5a0', fontFamily: "'DM Sans', sans-serif" }}
             >
-              You&apos;re on the list! We&apos;ll be in touch.
+              You're on the list! We'll be in touch.
             </span>
           </div>
         ) : (
@@ -208,13 +208,13 @@ export default function CTASection() {
           style={{ borderTop: '1px solid #1e242c' }}
         >
           {[
-            { value: '10K+', label: 'Bettors tracking' },
-            { value: '$2.4M', label: 'Bankroll tracked' },
-            { value: '100%', label: 'Free to start' },
+            { value: 'Early Access', label: 'Now open' },
+            { value: 'Start', label: 'For free' },
+            { value: 'Pro', label: 'Coming soon' },
           ].map((stat, i) => (
             <div key={i} className="flex flex-col items-center">
               <span
-                className="text-2xl font-bold leading-none"
+                className="text-sm font-bold leading-none"
                 style={{
                   color: '#00e5a0',
                   fontFamily: "'Inter', sans-serif",
