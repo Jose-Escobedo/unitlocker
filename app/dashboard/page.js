@@ -1,7 +1,8 @@
 'use client';
 import BankrollCalendar from '@/components/BankrollCalendar';
+import { searchTeams, getTeams } from '@/lib/sportsData';
 
-import { useState } from 'react';
+import {useState, useEffect, useMemo} from 'react';
 import {
   TrendingUp, TrendingDown, Plus, X, ChevronDown,
   Trophy, Star, Target, BarChart2, Wallet,
@@ -9,18 +10,17 @@ import {
   Flame, Zap, Lock, DollarSign, Percent,
   Activity, Award, Crosshair, Layers
 } from 'lucide-react';
-import ProtectedRoute from '@/components/ProtectedRoute';
 
 // ── Mock data — replace with real API calls ──
 const MOCK_USER = { name: 'Alex' };
 const STARTING_BANKROLL = 1000;
 
 const MOCK_BETS = [
-  { id: 1, game: 'Lakers vs Celtics', sport: '🏀 NBA', type: 'Moneyline', odds: -110, stake: 50, status: 'win', pl: 45.45, date: 'Mar 22' },
-  { id: 2, game: 'Chiefs vs Ravens', sport: '🏈 NFL', type: 'Spread', odds: -110, stake: 75, status: 'loss', pl: -75, date: 'Mar 21' },
-  { id: 3, game: 'Yankees vs Red Sox', sport: '⚾ MLB', type: 'Total (O/U)', odds: +120, stake: 40, status: 'win', pl: 48, date: 'Mar 20' },
+  { id: 1, game: 'Lakers vs Celtics', sport: '🏀 NBA', type: 'Moneyline', odds: -110, stake: 50, pick: 'Lakers', status: 'win', pl: 45.45, date: 'Mar 22' },
+  { id: 2, game: 'Chiefs vs Ravens', sport: '🏈 NFL', type: 'Spread', odds: -110, stake: 75, pick: 'Chiefs', status: 'loss', pl: -75, date: 'Mar 21' },
+  { id: 3, game: 'Yankees vs Red Sox', sport: '⚾ MLB', type: 'Total (O/U)', odds: +120, stake: 40, pick: 'Over', status: 'win', pl: 48, date: 'Mar 20' },
   { id: 4, game: 'Man City vs Arsenal', sport: '⚽ Soccer', type: 'Moneyline', odds: +150, stake: 30, status: 'push', pl: 0, date: 'Mar 19' },
-  { id: 5, game: 'Nuggets vs Warriors', sport: '🏀 NBA', type: 'Spread', odds: -110, stake: 60, status: 'pending', pl: 0, date: 'Mar 25' },
+  { id: 5, game: 'Nuggets vs Warriors', sport: '🏀 NBA', type: 'Spread', odds: -110, stake: 60, pick: 'Nuggets', status: 'pending', pl: 0, date: 'Mar 25' },
   { id: 6, game: 'Maple Leafs vs Bruins', sport: '🏒 NHL', type: 'Moneyline', odds: +105, stake: 45, status: 'win', pl: 47.25, date: 'Mar 18' },
 ];
 
@@ -43,7 +43,6 @@ const ACHIEVEMENTS = [
 ];
 
 const SPORTS = ['🏀 NBA', '🏈 NFL', '⚾ MLB', '🏒 NHL', '⚽ Soccer', '🎾 Tennis', '🥊 MMA', '🏇 Horse', '🎲 Other'];
-const BET_TYPES = ['Moneyline', 'Spread', 'Total (O/U)', 'Parlay', 'Prop', 'Futures'];
 
 // ── Helpers ──
 function fmt(n) {
@@ -161,6 +160,14 @@ function BetRow({ bet, onSettle }) {
         >
           <span>{bet.sport}</span>
           <span>{bet.type}</span>
+          {bet.pick && (
+            <span
+              className="px-1.5 py-0.5 rounded"
+              style={{ background: 'rgba(0,229,160,0.08)', color: '#00e5a0', border: '1px solid rgba(0,229,160,0.2)' }}
+            >
+              {bet.pick}
+            </span>
+          )}
           <span>{bet.odds > 0 ? '+' : ''}{bet.odds}</span>
           <span>{bet.date}</span>
         </div>
@@ -210,53 +217,152 @@ function BetRow({ bet, onSettle }) {
 }
 
 // ── Log Bet Modal ──
+const SPORTS_GRID = [
+  { label: 'NBA',     emoji: '🏀' },
+  { label: 'NFL',     emoji: '🏈' },
+  { label: 'MLB',     emoji: '⚾' },
+  { label: 'NHL',     emoji: '🏒' },
+  { label: 'Soccer',  emoji: '⚽' },
+  { label: 'Tennis',  emoji: '🎾' },
+  { label: 'MMA',     emoji: '🥊' },
+  { label: 'Horse',   emoji: '🏇' },
+  { label: 'Other',   emoji: '🎲' },
+];
+
+const QUICK_STAKES = [25, 50, 100, 200];
+const BET_TYPES = ['Moneyline', 'Spread', 'Total (O/U)', 'Parlay', 'Prop', 'Futures'];
+
+// Persist last used prefs in localStorage
+function getLastPrefs() {
+  try {
+    const raw = localStorage.getItem('ul_last_prefs');
+    return raw ? JSON.parse(raw) : {};
+  } catch { return {}; }
+}
+function saveLastPrefs(prefs) {
+  try { localStorage.setItem('ul_last_prefs', JSON.stringify(prefs)); } catch {}
+}
+
+function americanToDecimalModal(o) {
+  return o > 0 ? (o / 100 + 1) : (100 / Math.abs(o) + 1);
+}
+function decimalToAmerican(d) {
+  if (d >= 2) return Math.round((d - 1) * 100);
+  return Math.round(-100 / (d - 1));
+}
+
 function LogBetModal({ onClose, onSubmit, bankroll }) {
-  const [form, setForm] = useState({
-    game: '', sport: SPORTS[0], type: BET_TYPES[0], odds: '', stake: '',
-  });
+  const lastPrefs = getLastPrefs();
+
+  const [sport, setSport] = useState(lastPrefs.sport || 'NBA');
+  const [betType, setBetType] = useState(lastPrefs.betType || 'Moneyline');
+  const [showBetType, setShowBetType] = useState(false);
+  const [oddsRaw, setOddsRaw] = useState('');
+  const [oddsFormat, setOddsFormat] = useState('american');
+  const [stakeRaw, setStakeRaw] = useState(lastPrefs.stake ? String(lastPrefs.stake) : '');
+  const [customStake, setCustomStake] = useState(false);
   const [error, setError] = useState('');
 
-  const potentialWin = form.odds && form.stake
-    ? calcPotentialWin(parseFloat(form.odds), parseFloat(form.stake))
+  // Pick / Against state
+  const [pickQuery, setPickQuery] = useState('');
+  const [pick, setPick] = useState('');
+  const [showPickSugg, setShowPickSugg] = useState(false);
+
+  const [againstQuery, setAgainstQuery] = useState('');
+  const [against, setAgainst] = useState('');
+  const [showAgainstSugg, setShowAgainstSugg] = useState(false);
+
+  // Derived game string
+  const game = pick && against ? `${pick} vs ${against}` : pick || '';
+
+  // Suggestions
+  const pickSuggestions = useMemo(() => searchTeams(pickQuery, sport, 6), [pickQuery, sport]);
+  const againstSuggestions = useMemo(() => searchTeams(againstQuery, sport, 6, pick), [againstQuery, sport, pick]);
+
+  // Reset against when pick or sport changes
+  useEffect(() => { setAgainst(''); setAgainstQuery(''); }, [pick, sport]);
+  useEffect(() => { setPick(''); setPickQuery(''); setAgainst(''); setAgainstQuery(''); }, [sport]);
+
+  // Parse odds to american for calculation
+  const oddsAmerican = useMemo(() => {
+    const val = parseFloat(oddsRaw);
+    if (!val || isNaN(val)) return null;
+    if (oddsFormat === 'decimal') return decimalToAmerican(val);
+    return val;
+  }, [oddsRaw, oddsFormat]);
+
+  const stake = parseFloat(stakeRaw) || 0;
+  const potentialWin = oddsAmerican && stake > 0
+    ? stake * (americanToDecimalModal(oddsAmerican) - 1)
     : null;
 
+  // Keyboard shortcuts
+  useEffect(() => {
+    const handler = (e) => {
+      if (e.key === 'Escape') onClose();
+    };
+    window.addEventListener('keydown', handler);
+    return () => window.removeEventListener('keydown', handler);
+  }, [onClose]);
+
   const handleSubmit = (e) => {
-    e.preventDefault();
-    if (!form.game.trim()) { setError('Enter a game or event.'); return; }
-    if (!form.odds || isNaN(parseFloat(form.odds))) { setError('Enter valid odds.'); return; }
-    const stake = parseFloat(form.stake);
+    e?.preventDefault();
+    if (!pick) { setError('Select your pick.'); return; }
+    if (!against) { setError('Select the opponent.'); return; }
+    if (!oddsAmerican || isNaN(oddsAmerican)) { setError('Enter valid odds.'); return; }
     if (!stake || stake <= 0) { setError('Enter a valid stake.'); return; }
     if (stake > bankroll) { setError('Stake exceeds available bankroll.'); return; }
     setError('');
-    onSubmit({ ...form, odds: parseFloat(form.odds), stake });
+    saveLastPrefs({ sport, betType, stake });
+    onSubmit({ game: `${pick} vs ${against}`, sport, type: betType, odds: oddsAmerican, stake, pick, against });
     onClose();
+  };
+
+  // Enter key submits
+  const handleKeyDown = (e) => {
+    if (e.key === 'Enter' && !e.shiftKey) handleSubmit();
+  };
+
+  const inputStyle = {
+    background: '#181c22',
+    border: '1px solid #1e242c',
+    color: '#e8ecf0',
+    fontFamily: "'DM Mono', monospace",
+    outline: 'none',
+    transition: 'border-color 0.15s, box-shadow 0.15s',
+  };
+
+  const onFocus = (e) => {
+    e.target.style.borderColor = 'rgba(0,229,160,0.4)';
+    e.target.style.boxShadow = '0 0 0 3px rgba(0,229,160,0.07)';
+  };
+  const onBlur = (e) => {
+    e.target.style.borderColor = '#1e242c';
+    e.target.style.boxShadow = 'none';
   };
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center p-4"
-      style={{ background: 'rgba(0,0,0,0.7)', backdropFilter: 'blur(4px)' }}
+      className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4"
+      style={{ background: 'rgba(0,0,0,0.75)', backdropFilter: 'blur(4px)' }}
       onClick={e => e.target === e.currentTarget && onClose()}
     >
       <div
-        className="w-full max-w-md rounded-2xl relative overflow-hidden"
+        className="w-full sm:max-w-md rounded-t-2xl sm:rounded-2xl relative overflow-hidden"
         style={{ background: '#111418', border: '1px solid #1e242c' }}
+        onKeyDown={handleKeyDown}
       >
-        {/* Top accent */}
         <div className="h-px w-full" style={{ background: 'linear-gradient(90deg, transparent, #00e5a0, transparent)' }} />
 
-        <div className="p-6">
+        <div className="p-5">
           {/* Header */}
-          <div className="flex items-center justify-between mb-6">
+          <div className="flex items-center justify-between mb-5">
             <div>
-              <h2
-                className="font-bold text-lg"
-                style={{ color: '#e8ecf0', fontFamily: "'Inter', sans-serif", letterSpacing: '-0.02em' }}
-              >
+              <h2 className="font-bold text-base" style={{ color: '#e8ecf0', fontFamily: "'Inter', sans-serif", letterSpacing: '-0.02em' }}>
                 Log a bet
               </h2>
               <p className="text-xs mt-0.5" style={{ color: '#5a6474', fontFamily: "'DM Mono', monospace" }}>
-                Available: {fmt(bankroll)}
+                Available: ${bankroll.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
               </p>
             </div>
             <button
@@ -266,119 +372,331 @@ function LogBetModal({ onClose, onSubmit, bankroll }) {
               onMouseEnter={e => e.currentTarget.style.color = '#e8ecf0'}
               onMouseLeave={e => e.currentTarget.style.color = '#5a6474'}
             >
-              <X size={15} />
+              <X size={14} />
             </button>
           </div>
 
-          <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+          {/* Pick / Against inputs */}
+          <div className="grid grid-cols-2 gap-3 mb-4">
 
-            {/* Game */}
-            <div className="flex flex-col gap-1.5">
-              <label className="text-xs font-medium tracking-widest uppercase" style={{ color: '#5a6474', fontFamily: "'DM Mono', monospace" }}>Game / Event</label>
+            {/* Pick */}
+            <div className="relative">
+              <label className="text-xs font-medium tracking-widest uppercase mb-1.5 block" style={{ color: '#5a6474', fontFamily: "'DM Mono', monospace" }}>
+                Pick
+              </label>
               <input
                 type="text"
-                placeholder="e.g. Lakers vs Celtics"
-                value={form.game}
-                onChange={e => setForm({ ...form, game: e.target.value })}
-                className="w-full px-4 py-2.5 rounded-lg text-sm outline-none transition-all duration-200"
-                style={{ background: '#181c22', border: '1px solid #1e242c', color: '#e8ecf0', fontFamily: "'DM Sans', sans-serif" }}
-                onFocus={e => { e.target.style.borderColor = 'rgba(0,229,160,0.4)'; e.target.style.boxShadow = '0 0 0 3px rgba(0,229,160,0.07)'; }}
-                onBlur={e => { e.target.style.borderColor = '#1e242c'; e.target.style.boxShadow = 'none'; }}
+                placeholder="Your team"
+                value={pick || pickQuery}
+                onChange={e => { setPickQuery(e.target.value); setPick(''); setShowPickSugg(true); }}
+                autoFocus
+                autoComplete="off"
+                className="w-full px-3 py-2.5 rounded-lg text-sm"
+                style={{
+                  ...inputStyle,
+                  fontFamily: "'DM Sans', sans-serif",
+                  borderColor: pick ? 'rgba(0,229,160,0.4)' : '#1e242c',
+                  color: pick ? '#00e5a0' : '#e8ecf0',
+                }}
+                onFocus={e => { onFocus(e); setShowPickSugg(true); }}
+                onBlur={e => { onBlur(e); setTimeout(() => setShowPickSugg(false), 150); }}
+              />
+              {pick && (
+                <button
+                  type="button"
+                  onClick={() => { setPick(''); setPickQuery(''); }}
+                  className="absolute right-2.5 top-1/2 -translate-y-1/2 cursor-pointer mt-2.5"
+                  style={{ color: '#5a6474' }}
+                >
+                  <X size={12} />
+                </button>
+              )}
+              {showPickSugg && pickSuggestions.length > 0 && !pick && (
+                <div
+                  className="absolute left-0 right-0 top-full mt-1 rounded-xl overflow-hidden z-20"
+                  style={{ background: '#181c22', border: '1px solid #1e242c', boxShadow: '0 8px 24px rgba(0,0,0,0.5)' }}
+                >
+                  {pickSuggestions.map((s, i) => (
+                    <button
+                      key={i}
+                      type="button"
+                      onMouseDown={() => { setPick(s); setPickQuery(''); setShowPickSugg(false); }}
+                      className="w-full text-left px-3 py-2 text-xs transition-all duration-100 cursor-pointer"
+                      style={{
+                        color: '#a8b3bf',
+                        fontFamily: "'DM Sans', sans-serif",
+                        borderBottom: i < pickSuggestions.length - 1 ? '1px solid #1e242c' : 'none',
+                      }}
+                      onMouseEnter={e => { e.currentTarget.style.background = 'rgba(0,229,160,0.07)'; e.currentTarget.style.color = '#e8ecf0'; }}
+                      onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = '#a8b3bf'; }}
+                    >
+                      {s}
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            {/* Against */}
+            <div className="relative">
+              <label className="text-xs font-medium tracking-widest uppercase mb-1.5 block" style={{ color: '#5a6474', fontFamily: "'DM Mono', monospace" }}>
+                Against
+              </label>
+              <input
+                type="text"
+                placeholder="Opponent"
+                value={against || againstQuery}
+                onChange={e => { setAgainstQuery(e.target.value); setAgainst(''); setShowAgainstSugg(true); }}
+                autoComplete="off"
+                disabled={!pick}
+                className="w-full px-3 py-2.5 rounded-lg text-sm"
+                style={{
+                  ...inputStyle,
+                  fontFamily: "'DM Sans', sans-serif",
+                  borderColor: against ? 'rgba(0,229,160,0.4)' : '#1e242c',
+                  color: against ? '#00e5a0' : '#e8ecf0',
+                  opacity: !pick ? 0.4 : 1,
+                  cursor: !pick ? 'not-allowed' : 'text',
+                }}
+                onFocus={e => { onFocus(e); setShowAgainstSugg(true); }}
+                onBlur={e => { onBlur(e); setTimeout(() => setShowAgainstSugg(false), 150); }}
+              />
+              {against && (
+                <button
+                  type="button"
+                  onClick={() => { setAgainst(''); setAgainstQuery(''); }}
+                  className="absolute right-2.5 top-1/2 -translate-y-1/2 cursor-pointer mt-2.5"
+                  style={{ color: '#5a6474' }}
+                >
+                  <X size={12} />
+                </button>
+              )}
+              {showAgainstSugg && againstSuggestions.length > 0 && !against && (
+                <div
+                  className="absolute left-0 right-0 top-full mt-1 rounded-xl overflow-hidden z-20"
+                  style={{ background: '#181c22', border: '1px solid #1e242c', boxShadow: '0 8px 24px rgba(0,0,0,0.5)' }}
+                >
+                  {againstSuggestions.map((s, i) => (
+                    <button
+                      key={i}
+                      type="button"
+                      onMouseDown={() => { setAgainst(s); setAgainstQuery(''); setShowAgainstSugg(false); }}
+                      className="w-full text-left px-3 py-2 text-xs transition-all duration-100 cursor-pointer"
+                      style={{
+                        color: '#a8b3bf',
+                        fontFamily: "'DM Sans', sans-serif",
+                        borderBottom: i < againstSuggestions.length - 1 ? '1px solid #1e242c' : 'none',
+                      }}
+                      onMouseEnter={e => { e.currentTarget.style.background = 'rgba(0,229,160,0.07)'; e.currentTarget.style.color = '#e8ecf0'; }}
+                      onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = '#a8b3bf'; }}
+                    >
+                      {s}
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* Matchup preview */}
+          {pick && against && (
+            <div
+              className="flex items-center justify-center gap-2 px-4 py-2 rounded-lg mb-4 text-xs"
+              style={{ background: 'rgba(0,229,160,0.06)', border: '1px solid rgba(0,229,160,0.15)' }}
+            >
+              <span style={{ color: '#00e5a0', fontFamily: "'DM Sans', sans-serif", fontWeight: 600 }}>{pick}</span>
+              <span style={{ color: '#2a3240', fontFamily: "'DM Mono', monospace" }}>vs</span>
+              <span style={{ color: '#8a95a3', fontFamily: "'DM Sans', sans-serif" }}>{against}</span>
+            </div>
+          )}
+
+          {/* Sport grid */}
+          <div className="mb-4">
+            <label className="text-xs font-medium tracking-widest uppercase mb-1.5 block" style={{ color: '#5a6474', fontFamily: "'DM Mono', monospace" }}>
+              Sport
+            </label>
+            <div className="grid grid-cols-9 gap-1">
+              {SPORTS_GRID.map(s => (
+                <button
+                  key={s.label}
+                  type="button"
+                  onClick={() => setSport(s.label)}
+                  className="flex flex-col items-center gap-0.5 py-2 rounded-lg transition-all duration-150 cursor-pointer"
+                  style={{
+                    background: sport === s.label ? 'rgba(0,229,160,0.12)' : '#181c22',
+                    border: `1px solid ${sport === s.label ? 'rgba(0,229,160,0.35)' : '#1e242c'}`,
+                  }}
+                  title={s.label}
+                >
+                  <span style={{ fontSize: '1rem', lineHeight: 1 }}>{s.emoji}</span>
+                  <span style={{ color: sport === s.label ? '#00e5a0' : '#2a3240', fontFamily: "'DM Mono', monospace", fontSize: '8px' }}>
+                    {s.label}
+                  </span>
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Odds row */}
+          <div className="mb-4">
+            <div className="flex items-center justify-between mb-1.5">
+              <label className="text-xs font-medium tracking-widest uppercase" style={{ color: '#5a6474', fontFamily: "'DM Mono', monospace" }}>
+                Odds
+              </label>
+              {/* Format toggle */}
+              <div className="flex gap-0.5 p-0.5 rounded-lg" style={{ background: '#181c22', border: '1px solid #1e242c' }}>
+                {['american', 'decimal'].map(f => (
+                  <button
+                    key={f}
+                    type="button"
+                    onClick={() => { setOddsFormat(f); setOddsRaw(''); }}
+                    className="px-2 py-0.5 rounded text-xs transition-all duration-150 cursor-pointer"
+                    style={{
+                      background: oddsFormat === f ? '#111418' : 'transparent',
+                      color: oddsFormat === f ? '#e8ecf0' : '#5a6474',
+                      fontFamily: "'DM Mono', monospace",
+                      border: oddsFormat === f ? '1px solid #1e242c' : '1px solid transparent',
+                    }}
+                  >
+                    {f === 'american' ? 'US' : 'DEC'}
+                  </button>
+                ))}
+              </div>
+            </div>
+            <input
+              type="number"
+              placeholder={oddsFormat === 'american' ? '-110' : '1.91'}
+              value={oddsRaw}
+              onChange={e => setOddsRaw(e.target.value)}
+              className="w-full px-4 py-2.5 rounded-lg text-sm"
+              style={inputStyle}
+              onFocus={onFocus}
+              onBlur={onBlur}
+            />
+            {oddsAmerican && oddsRaw && (
+              <p className="text-xs mt-1" style={{ color: '#2a3240', fontFamily: "'DM Mono', monospace" }}>
+                {oddsFormat === 'decimal'
+                  ? `American: ${oddsAmerican > 0 ? '+' : ''}${oddsAmerican}`
+                  : `Decimal: ${americanToDecimalModal(oddsAmerican).toFixed(3)}`}
+              </p>
+            )}
+          </div>
+
+          {/* Stake */}
+          <div className="mb-4">
+            <label className="text-xs font-medium tracking-widest uppercase mb-1.5 block" style={{ color: '#5a6474', fontFamily: "'DM Mono', monospace" }}>
+              Stake
+            </label>
+            {/* Quick stake buttons */}
+            <div className="grid grid-cols-4 gap-1.5 mb-2">
+              {QUICK_STAKES.map(s => (
+                <button
+                  key={s}
+                  type="button"
+                  onClick={() => { setStakeRaw(String(s)); setCustomStake(false); }}
+                  className="py-2 rounded-lg text-xs font-medium transition-all duration-150 cursor-pointer"
+                  style={{
+                    background: !customStake && stakeRaw === String(s) ? 'rgba(0,229,160,0.12)' : '#181c22',
+                    border: `1px solid ${!customStake && stakeRaw === String(s) ? 'rgba(0,229,160,0.35)' : '#1e242c'}`,
+                    color: !customStake && stakeRaw === String(s) ? '#00e5a0' : '#8a95a3',
+                    fontFamily: "'DM Mono', monospace",
+                  }}
+                >
+                  ${s}
+                </button>
+              ))}
+            </div>
+            {/* Custom stake */}
+            <div className="relative">
+              <span
+                className="absolute left-3 top-1/2 -translate-y-1/2 text-sm"
+                style={{ color: '#5a6474', fontFamily: "'DM Mono', monospace" }}
+              >
+                $
+              </span>
+              <input
+                type="number"
+                placeholder="Custom amount"
+                value={customStake ? stakeRaw : ''}
+                onChange={e => { setStakeRaw(e.target.value); setCustomStake(true); }}
+                onFocus={e => { setCustomStake(true); onFocus(e); }}
+                onBlur={onBlur}
+                className="w-full pl-7 pr-4 py-2.5 rounded-lg text-sm"
+                style={inputStyle}
+                min="1"
               />
             </div>
+          </div>
 
-            {/* Sport + Type */}
-            <div className="grid grid-cols-2 gap-3">
-              <div className="flex flex-col gap-1.5">
-                <label className="text-xs font-medium tracking-widest uppercase" style={{ color: '#5a6474', fontFamily: "'DM Mono', monospace" }}>Sport</label>
-                <div className="relative">
-                  <select
-                    value={form.sport}
-                    onChange={e => setForm({ ...form, sport: e.target.value })}
-                    className="w-full px-4 py-2.5 rounded-lg text-sm outline-none appearance-none transition-all duration-200"
-                    style={{ background: '#181c22', border: '1px solid #1e242c', color: '#e8ecf0', fontFamily: "'DM Sans', sans-serif" }}
-                  >
-                    {SPORTS.map(s => <option key={s}>{s}</option>)}
-                  </select>
-                  <ChevronDown size={13} className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none" style={{ color: '#5a6474' }} />
-                </div>
-              </div>
-              <div className="flex flex-col gap-1.5">
-                <label className="text-xs font-medium tracking-widest uppercase" style={{ color: '#5a6474', fontFamily: "'DM Mono', monospace" }}>Bet Type</label>
-                <div className="relative">
-                  <select
-                    value={form.type}
-                    onChange={e => setForm({ ...form, type: e.target.value })}
-                    className="w-full px-4 py-2.5 rounded-lg text-sm outline-none appearance-none transition-all duration-200"
-                    style={{ background: '#181c22', border: '1px solid #1e242c', color: '#e8ecf0', fontFamily: "'DM Sans', sans-serif" }}
-                  >
-                    {BET_TYPES.map(t => <option key={t}>{t}</option>)}
-                  </select>
-                  <ChevronDown size={13} className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none" style={{ color: '#5a6474' }} />
-                </div>
-              </div>
-            </div>
-
-            {/* Odds + Stake */}
-            <div className="grid grid-cols-2 gap-3">
-              <div className="flex flex-col gap-1.5">
-                <label className="text-xs font-medium tracking-widest uppercase" style={{ color: '#5a6474', fontFamily: "'DM Mono', monospace" }}>Odds (American)</label>
-                <input
-                  type="number"
-                  placeholder="-110"
-                  value={form.odds}
-                  onChange={e => setForm({ ...form, odds: e.target.value })}
-                  className="w-full px-4 py-2.5 rounded-lg text-sm outline-none transition-all duration-200"
-                  style={{ background: '#181c22', border: '1px solid #1e242c', color: '#e8ecf0', fontFamily: "'DM Mono', monospace" }}
-                  onFocus={e => { e.target.style.borderColor = 'rgba(0,229,160,0.4)'; e.target.style.boxShadow = '0 0 0 3px rgba(0,229,160,0.07)'; }}
-                  onBlur={e => { e.target.style.borderColor = '#1e242c'; e.target.style.boxShadow = 'none'; }}
-                />
-              </div>
-              <div className="flex flex-col gap-1.5">
-                <label className="text-xs font-medium tracking-widest uppercase" style={{ color: '#5a6474', fontFamily: "'DM Mono', monospace" }}>Stake ($)</label>
-                <input
-                  type="number"
-                  placeholder="50.00"
-                  min="1"
-                  value={form.stake}
-                  onChange={e => setForm({ ...form, stake: e.target.value })}
-                  className="w-full px-4 py-2.5 rounded-lg text-sm outline-none transition-all duration-200"
-                  style={{ background: '#181c22', border: '1px solid #1e242c', color: '#e8ecf0', fontFamily: "'DM Mono', monospace" }}
-                  onFocus={e => { e.target.style.borderColor = 'rgba(0,229,160,0.4)'; e.target.style.boxShadow = '0 0 0 3px rgba(0,229,160,0.07)'; }}
-                  onBlur={e => { e.target.style.borderColor = '#1e242c'; e.target.style.boxShadow = 'none'; }}
-                />
-              </div>
-            </div>
-
-            {/* Potential win preview */}
-            {potentialWin !== null && potentialWin > 0 && (
-              <div
-                className="flex items-center justify-between px-4 py-3 rounded-xl"
-                style={{ background: 'rgba(0,229,160,0.06)', border: '1px solid rgba(0,229,160,0.15)' }}
-              >
-                <span className="text-xs" style={{ color: '#5a6474', fontFamily: "'DM Mono', monospace" }}>Potential win</span>
-                <span className="text-sm font-semibold" style={{ color: '#00e5a0', fontFamily: "'DM Mono', monospace" }}>
-                  +{fmt(potentialWin)}
-                </span>
-              </div>
-            )}
-
-            {/* Error */}
-            {error && (
-              <p className="text-xs" style={{ color: '#ff4757', fontFamily: "'DM Sans', sans-serif" }}>{error}</p>
-            )}
-
-            {/* Submit */}
+          {/* Bet type — collapsed/optional */}
+          <div className="mb-4">
             <button
-              type="submit"
-              className="w-full py-3 rounded-lg font-semibold text-sm transition-all duration-200 mt-1 cursor-pointer"
-              style={{ background: '#00e5a0', color: '#0a0c0f', fontFamily: "'DM Sans', sans-serif" }}
-              onMouseEnter={e => { e.currentTarget.style.background = '#00f0aa'; e.currentTarget.style.boxShadow = '0 0 24px rgba(0,229,160,0.3)'; }}
-              onMouseLeave={e => { e.currentTarget.style.background = '#00e5a0'; e.currentTarget.style.boxShadow = 'none'; }}
+              type="button"
+              onClick={() => setShowBetType(!showBetType)}
+              className="flex items-center gap-1.5 text-xs cursor-pointer transition-colors duration-150"
+              style={{ color: showBetType ? '#00e5a0' : '#2a3240', fontFamily: "'DM Mono', monospace" }}
             >
-              Log bet
+              <ChevronDown
+                size={12}
+                style={{ transform: showBetType ? 'rotate(180deg)' : 'rotate(0deg)', transition: 'transform 0.2s' }}
+              />
+              Bet type: <span style={{ color: '#5a6474' }}>{betType}</span>
             </button>
-          </form>
+            {showBetType && (
+              <div className="grid grid-cols-3 gap-1.5 mt-2">
+                {BET_TYPES.map(t => (
+                  <button
+                    key={t}
+                    type="button"
+                    onClick={() => setBetType(t)}
+                    className="py-1.5 px-2 rounded-lg text-xs transition-all duration-150 cursor-pointer"
+                    style={{
+                      background: betType === t ? 'rgba(0,229,160,0.1)' : '#181c22',
+                      border: `1px solid ${betType === t ? 'rgba(0,229,160,0.3)' : '#1e242c'}`,
+                      color: betType === t ? '#00e5a0' : '#5a6474',
+                      fontFamily: "'DM Mono', monospace",
+                    }}
+                  >
+                    {t}
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
+
+          {/* Potential win preview */}
+          {potentialWin !== null && potentialWin > 0 && (
+            <div
+              className="flex items-center justify-between px-4 py-2.5 rounded-xl mb-4"
+              style={{ background: 'rgba(0,229,160,0.06)', border: '1px solid rgba(0,229,160,0.15)' }}
+            >
+              <span className="text-xs" style={{ color: '#5a6474', fontFamily: "'DM Mono', monospace" }}>Potential win</span>
+              <span className="text-sm font-semibold" style={{ color: '#00e5a0', fontFamily: "'DM Mono', monospace" }}>
+                +${potentialWin.toFixed(2)}
+              </span>
+            </div>
+          )}
+
+          {/* Error */}
+          {error && (
+            <p className="text-xs mb-3" style={{ color: '#ff4757', fontFamily: "'DM Sans', sans-serif" }}>{error}</p>
+          )}
+
+          {/* Submit */}
+          <button
+            type="button"
+            onClick={handleSubmit}
+            className="w-full py-3 rounded-lg font-semibold text-sm transition-all duration-200 cursor-pointer"
+            style={{ background: '#00e5a0', color: '#0a0c0f', fontFamily: "'DM Sans', sans-serif" }}
+            onMouseEnter={e => { e.currentTarget.style.background = '#00f0aa'; e.currentTarget.style.boxShadow = '0 0 20px rgba(0,229,160,0.3)'; }}
+            onMouseLeave={e => { e.currentTarget.style.background = '#00e5a0'; e.currentTarget.style.boxShadow = 'none'; }}
+          >
+            Log bet
+          </button>
+
+          <p className="text-center text-xs mt-3" style={{ color: '#2a3240', fontFamily: "'DM Mono', monospace" }}>
+            Press Enter to submit · Esc to close
+          </p>
         </div>
       </div>
     </div>
@@ -439,6 +757,8 @@ export default function Dashboard() {
       type: form.type,
       odds: form.odds,
       stake: form.stake,
+      pick: form.pick || '',
+      against: form.against || '',
       status: 'pending',
       pl: 0,
       date: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
@@ -454,7 +774,6 @@ export default function Dashboard() {
   ];
 
   return (
-    <ProtectedRoute>
     <div className="min-h-screen pt-16" style={{ background: '#0a0c0f' }}>
       {showModal && (
         <LogBetModal
@@ -853,6 +1172,5 @@ export default function Dashboard() {
         )}
       </div>
     </div>
-    </ProtectedRoute>
   );
 }
