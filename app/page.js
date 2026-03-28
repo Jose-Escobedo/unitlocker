@@ -20,8 +20,16 @@ export default function Home() {
     }
   }, [user, loading, router]);
 
-  // While auth is resolving don't flash the marketing page
-  if (loading || user) return null;
+if (loading || user) {
+  return (
+    <main className="min-h-screen">
+      <div className="h-[80vh] animate-pulse bg-[#181c22]" />
+      <div className="h-[60vh] mt-6 animate-pulse bg-[#181c22]" />
+      <div className="h-[60vh] mt-6 animate-pulse bg-[#181c22]" />
+      <div className="h-[60vh] mt-6 animate-pulse bg-[#181c22]" />
+    </main>
+  );
+}
 
   return (
     <main>
