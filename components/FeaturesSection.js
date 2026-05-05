@@ -140,7 +140,7 @@ export default function FeaturesSection() {
             className="text-base max-w-xl mx-auto"
             style={{ color: '#5a6474', fontFamily: "'DM Sans', sans-serif" }}
           >
-            The full picks feed, unit calculator, and one-tap bookie locking — all in one place. Pro unlocks alpha picks and early access.
+           The full picks feed, unit calculator, and a fast betting workflow — all in one place.
           </p>
         </div>
 
