@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+import { Crosshair } from 'lucide-react';
 
 const links = {
   Product: [
@@ -36,7 +37,7 @@ export default function Footer() {
           transform: 'translateX(-50%)',
           width: '600px',
           height: '200px',
-          background: 'radial-gradient(ellipse, rgba(0,229,160,0.03) 0%, transparent 70%)',
+          background: 'radial-gradient(ellipse, rgba(255,107,53,0.03) 0%, transparent 70%)',
         }}
       />
 
@@ -49,20 +50,9 @@ export default function Footer() {
             <Link href="/" className="inline-flex items-center gap-2.5 w-fit">
               <div
                 className="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0"
-                style={{ background: '#00e5a0' }}
+                style={{ background: '#ff6b35' }}
               >
-                <svg width="16" height="18" viewBox="0 0 16 18" fill="none">
-                  <path
-                    d="M4.5 7.5V5a3.5 3.5 0 0 1 7 0v2.5"
-                    stroke="white"
-                    strokeWidth="1.8"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  />
-                  <rect x="1.5" y="7.5" width="13" height="9" rx="2.5" fill="white" />
-                  <circle cx="8" cy="12" r="1.5" fill="#00e5a0" />
-                  <rect x="7.25" y="12" width="1.5" height="2.5" rx="0.75" fill="#00e5a0" />
-                </svg>
+                <Crosshair size={16} color="white" strokeWidth={2.5} />
               </div>
               <span
                 className="font-black text-xl leading-none"
@@ -72,7 +62,7 @@ export default function Footer() {
                   color: '#e8ecf0',
                 }}
               >
-                <span style={{ color: '#00e5a0' }}>UNIT</span>LOCKER
+                <span style={{ color: '#ff6b35' }}>UNIT</span>LOCKER
               </span>
             </Link>
 
@@ -80,7 +70,7 @@ export default function Footer() {
               className="text-sm leading-relaxed"
               style={{ color: '#5a6474', fontFamily: "'DM Sans', sans-serif" }}
             >
-              Bankroll management for sports bettors who are serious about long-term profit.
+             Stop guessing. Start locking.
             </p>
 
             {/* Discord CTA */}
@@ -131,7 +121,7 @@ export default function Footer() {
                       rel="noopener noreferrer"
                       className="text-sm transition-colors duration-200 w-fit"
                       style={{ color: '#5a6474', fontFamily: "'DM Sans', sans-serif" }}
-                      onMouseEnter={e => e.currentTarget.style.color = '#00e5a0'}
+                      onMouseEnter={e => e.currentTarget.style.color = '#ff6b35'}
                       onMouseLeave={e => e.currentTarget.style.color = '#5a6474'}
                     >
                       {label}
@@ -142,7 +132,7 @@ export default function Footer() {
                       href={href}
                       className="text-sm transition-colors duration-200 w-fit"
                       style={{ color: '#5a6474', fontFamily: "'DM Sans', sans-serif" }}
-                      onMouseEnter={e => e.currentTarget.style.color = '#00e5a0'}
+                      onMouseEnter={e => e.currentTarget.style.color = '#ff6b35'}
                       onMouseLeave={e => e.currentTarget.style.color = '#5a6474'}
                     >
                       {label}

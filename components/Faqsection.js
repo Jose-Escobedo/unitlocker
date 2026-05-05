@@ -4,25 +4,29 @@ import { useState } from 'react';
 import { ChevronDown } from 'lucide-react';
 
 const faqs = [
+ {
+  q: "What sports does UnitLocker cover?",
+  a: "We post picks for CS2, NBA, NHL, MLB, NFL, and tennis. NBA, NHL, MLB, NFL, and tennis picks are posted during their active seasons. More sports may be added over time.",
+},
   {
-    q: "What's included in the free plan?",
-    a: "The free plan includes everything you need to manage your bankroll effectively — bet logging and history, real-time bankroll tracking, win/loss/streak stats, and the full gamification system including XP, ranks, and achievements. No credit card required, no time limit.",
+    q: "What is the confidence rating system?",
+    a: "Every pick is rated 1–5 units. A 1u pick is a lean — lower confidence, smaller suggested stake. A 5u pick is a lock — our highest confidence call. Fire Picks are pinned to the top of the feed and represent the strongest plays of the day.",
   },
   {
-    q: "How does the gamification work?",
-    a: "Every action you take in UnitLocker earns you XP — logging a bet, settling a result, maintaining a streak. As your XP grows you climb through 6 ranks from Rookie all the way to Legend. Along the way you unlock achievements tied to milestones like your first win, a 5-bet win streak, doubling your bankroll, and more. It's designed to keep you accountable and make disciplined betting feel rewarding.",
+    q: "When is UnitLocker Pro launching?",
+    a: "We're focused on delivering the best pick feed experience first. Pro is on the roadmap — hit the notify button on the pricing section and you'll be first to know when it drops. Early members get priority access.",
   },
   {
-    q: "When is Pro launching?",
-    a: "We're focused on nailing the free experience first. Pro is coming — hit the notify button on the pricing card and we'll let you know the moment it's live. Early signups will be the first to hear.",
-  },
-  {
-    q: "What do I get with the Pro Discord community?",
-    a: "Pro members get access to a private Discord server with picks and analysis from verified cappers as well as the wider UnitLocker community. It's a space for serious bettors to share insight, discuss lines, and help each other out.",
+    q: "Can community members post picks?",
+    a: "Yes. The feed is community-driven — members can submit picks alongside staff picks. Community picks are labeled so you always know the source. The confidence rating system applies to all picks regardless of who posted them.",
   },
   {
     q: "Can I cancel anytime?",
-    a: "Yes. There are no long-term commitments on the monthly plan — cancel whenever you want and you keep access until the end of your billing period. On the annual plan you're billed upfront for the year, but you can cancel renewal at any time.",
+    a: "Yes. Monthly plan — cancel whenever you like, access continues until end of billing period. Annual plan — billed upfront, cancel renewal anytime. No long-term commitments.",
+  },
+  {
+    q: "What picks do you post for CS2?",
+    a: "We focus on player props from tier-1 and major tournaments — primarily kills and headshots. Picks come from both staff and the community. Some include context notes, others are a straight line with a confidence rating.",
   },
 ];
 
@@ -50,7 +54,7 @@ export default function FAQSection() {
           right: '10%',
           width: '500px',
           height: '400px',
-          background: 'radial-gradient(ellipse, rgba(0,229,160,0.04) 0%, transparent 70%)',
+          background: 'radial-gradient(ellipse, rgba(255,107,53,0.04) 0%, transparent 70%)',
         }}
       />
 
@@ -61,14 +65,14 @@ export default function FAQSection() {
           <div
             className="inline-flex items-center gap-2 px-3 py-1.5 rounded-md mb-5"
             style={{
-              background: 'rgba(0,229,160,0.08)',
-              border: '1px solid rgba(0,229,160,0.2)',
+              background: 'rgba(255,107,53,0.08)',
+              border: '1px solid rgba(255,107,53,0.2)',
             }}
           >
-            <div className="w-1.5 h-1.5 rounded-full" style={{ background: '#00e5a0' }} />
+            <div className="w-1.5 h-1.5 rounded-full" style={{ background: '#ff6b35' }} />
             <span
               className="text-xs font-medium tracking-widest uppercase"
-              style={{ color: '#00e5a0', fontFamily: "'DM Mono', monospace" }}
+              style={{ color: '#ff6b35', fontFamily: "'DM Mono', monospace" }}
             >
               FAQ
             </span>
@@ -82,7 +86,7 @@ export default function FAQSection() {
             }}
           >
             Questions?{' '}
-            <span style={{ color: '#00e5a0' }}>We&apos;ve got answers.</span>
+            <span style={{ color: '#ff6b35' }}>We&apos;ve got answers.</span>
           </h2>
           <p
             className="text-base"
@@ -102,7 +106,7 @@ export default function FAQSection() {
                 className="rounded-xl overflow-hidden transition-all duration-200"
                 style={{
                   background: '#111418',
-                  border: `1px solid ${isOpen ? 'rgba(0,229,160,0.2)' : '#1e242c'}`,
+                  border: `1px solid ${isOpen ? 'rgba(255,107,53,0.2)' : '#1e242c'}`,
                 }}
               >
                 <button
@@ -122,9 +126,9 @@ export default function FAQSection() {
                   <div
                     className="flex-shrink-0 w-7 h-7 rounded-lg flex items-center justify-center transition-all duration-300"
                     style={{
-                      background: isOpen ? 'rgba(0,229,160,0.1)' : '#181c22',
-                      border: `1px solid ${isOpen ? 'rgba(0,229,160,0.2)' : '#1e242c'}`,
-                      color: isOpen ? '#00e5a0' : '#5a6474',
+                      background: isOpen ? 'rgba(255,107,53,0.1)' : '#181c22',
+                      border: `1px solid ${isOpen ? 'rgba(255,107,53,0.2)' : '#1e242c'}`,
+                      color: isOpen ? '#ff6b35' : '#5a6474',
                       transform: isOpen ? 'rotate(180deg)' : 'rotate(0deg)',
                     }}
                   >
@@ -169,9 +173,9 @@ export default function FAQSection() {
           <a
             href="/contact"
             className="transition-colors duration-200"
-            style={{ color: '#00e5a0' }}
-            onMouseEnter={e => e.currentTarget.style.color = '#00f0aa'}
-            onMouseLeave={e => e.currentTarget.style.color = '#00e5a0'}
+            style={{ color: '#ff6b35' }}
+            onMouseEnter={e => e.currentTarget.style.color = '#ff7d4d'}
+            onMouseLeave={e => e.currentTarget.style.color = '#ff6b35'}
           >
             Get in touch
           </a>

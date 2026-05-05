@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
-import { Eye, EyeOff, CheckCircle } from "lucide-react";
+import { Eye, EyeOff, CheckCircle, Crosshair, Flame, Rss } from "lucide-react";
 import Link from "next/link";
 
 export default function LoginPage() {
@@ -23,7 +23,7 @@ export default function LoginPage() {
   const sanitizeInput = (str) => str.replace(/[<>]/g, "");
 
   useEffect(() => {
-    if (user) router.replace("/dashboard");
+    if (user) router.replace("/picks");
   }, [user, router]);
 
   const handleChange = (e) => {
@@ -57,7 +57,6 @@ export default function LoginPage() {
     return "";
   };
 
-  // ── all backend logic unchanged ──
   const handleSubmit = async (e) => {
     e.preventDefault();
     setTouched({ email: true, password: true });
@@ -82,7 +81,7 @@ export default function LoginPage() {
       if (res.ok) {
         await fetchUser();
         setMessage({ type: "success", text: "Logged in! Redirecting..." });
-        setTimeout(() => router.push("/dashboard"), 1000);
+        setTimeout(() => router.push("/picks"), 1000);
       } else {
         setMessage({ type: "error", text: data?.error || "Something went wrong." });
       }
@@ -96,58 +95,39 @@ export default function LoginPage() {
   if (user) return null;
 
   return (
-    <div
-      className="min-h-screen flex pt-16"
-      style={{ background: '#0a0c0f' }}
-    >
+    <div className="min-h-screen flex pt-16" style={{ background: '#0a0c0f' }}>
+
       {/* ── Left panel ── */}
       <div
         className="hidden lg:flex lg:w-1/2 flex-col justify-between p-12 relative overflow-hidden"
         style={{ background: '#111418', borderRight: '1px solid #1e242c' }}
       >
-        {/* Glow */}
         <div
           className="absolute pointer-events-none"
           style={{
-            top: '-100px',
-            right: '-100px',
-            width: '500px',
-            height: '500px',
-            background: 'radial-gradient(ellipse, rgba(0,229,160,0.06) 0%, transparent 65%)',
+            top: '-100px', right: '-100px', width: '500px', height: '500px',
+            background: 'radial-gradient(ellipse, rgba(255,107,53,0.07) 0%, transparent 65%)',
           }}
         />
-
-        {/* Dot grid */}
         <div
           className="absolute inset-0 pointer-events-none"
           style={{
-            backgroundImage: `radial-gradient(circle, rgba(0,229,160,0.15) 1px, transparent 1px)`,
+            backgroundImage: `radial-gradient(circle, rgba(255,107,53,0.14) 1px, transparent 1px)`,
             backgroundSize: '32px 32px',
             maskImage: 'radial-gradient(ellipse 80% 80% at 50% 50%, black 20%, transparent 100%)',
             WebkitMaskImage: 'radial-gradient(ellipse 80% 80% at 50% 50%, black 20%, transparent 100%)',
-            opacity: 0.18,
+            opacity: 0.15,
           }}
         />
 
         {/* Logo */}
         <div className="relative">
           <Link href="/" className="inline-flex items-center gap-2.5">
-            <div
-              className="w-9 h-9 rounded-lg flex items-center justify-center"
-              style={{ background: '#00e5a0' }}
-            >
-              <svg width="17" height="19" viewBox="0 0 16 18" fill="none">
-                <path d="M4.5 7.5V5a3.5 3.5 0 0 1 7 0v2.5" stroke="white" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/>
-                <rect x="1.5" y="7.5" width="13" height="9" rx="2.5" fill="white"/>
-                <circle cx="8" cy="12" r="1.5" fill="#00e5a0"/>
-                <rect x="7.25" y="12" width="1.5" height="2.5" rx="0.75" fill="#00e5a0"/>
-              </svg>
+            <div className="w-9 h-9 rounded-lg flex items-center justify-center" style={{ background: '#ff6b35' }}>
+              <Crosshair size={18} color="white" strokeWidth={2.5} />
             </div>
-            <span
-              className="font-black text-xl leading-none"
-              style={{ fontFamily: "'Inter', sans-serif", letterSpacing: '-0.5px', color: '#e8ecf0' }}
-            >
-              <span style={{ color: '#00e5a0' }}>UNIT</span>LOCKER
+            <span className="font-black text-xl leading-none" style={{ fontFamily: "'Inter', sans-serif", letterSpacing: '-0.5px', color: '#e8ecf0' }}>
+              <span style={{ color: '#ff6b35' }}>UNIT</span>LOCKER
             </span>
           </Link>
         </div>
@@ -160,45 +140,34 @@ export default function LoginPage() {
           >
             Welcome back.
             <br />
-            <span style={{ color: '#00e5a0' }}>Your edge awaits.</span>
+            <span style={{ color: '#ff6b35' }}>Picks are live.</span>
           </h2>
-          <p
-            className="text-sm leading-relaxed max-w-sm"
-            style={{ color: '#5a6474', fontFamily: "'DM Sans', sans-serif" }}
-          >
-            Log back in to pick up where you left off — your bankroll, your bets, your progress. All waiting for you.
+          <p className="text-sm leading-relaxed max-w-sm" style={{ color: '#5a6474', fontFamily: "'DM Sans', sans-serif" }}>
+            Log in and get straight to the feed — CS2, NBA, NHL &amp; MLB picks posted daily by staff and the community.
           </p>
 
-          {/* Stats */}
           <div className="flex flex-col gap-3 mt-2">
             {[
-              'Your bankroll tracked in real time',
-              'Full bet history always available',
-              'Streaks, XP & ranks preserved',
+              { icon: <Rss size={12} />, text: 'Daily picks feed — CS2, NBA, NHL, MLB' },
+              { icon: <Flame size={12} />, text: 'Fire Picks highlighted at the top' },
+              { icon: <Crosshair size={12} />, text: 'Staff and community picks' },
             ].map((item, i) => (
               <div key={i} className="flex items-center gap-3">
                 <div
                   className="w-5 h-5 rounded-md flex items-center justify-center flex-shrink-0"
-                  style={{ background: 'rgba(0,229,160,0.1)', border: '1px solid rgba(0,229,160,0.2)' }}
+                  style={{ background: 'rgba(255,107,53,0.1)', border: '1px solid rgba(255,107,53,0.2)', color: '#ff6b35' }}
                 >
-                  <div className="w-1.5 h-1.5 rounded-full" style={{ background: '#00e5a0' }} />
+                  {item.icon}
                 </div>
-                <span
-                  className="text-sm"
-                  style={{ color: '#8a95a3', fontFamily: "'DM Sans', sans-serif" }}
-                >
-                  {item}
+                <span className="text-sm" style={{ color: '#8a95a3', fontFamily: "'DM Sans', sans-serif" }}>
+                  {item.text}
                 </span>
               </div>
             ))}
           </div>
         </div>
 
-        {/* Bottom */}
-        <p
-          className="relative text-xs"
-          style={{ color: '#2a3240', fontFamily: "'DM Mono', monospace" }}
-        >
+        <p className="relative text-xs" style={{ color: '#2a3240', fontFamily: "'DM Mono', monospace" }}>
           © {new Date().getFullYear()} UnitLocker. All rights reserved.
         </p>
       </div>
@@ -210,60 +179,37 @@ export default function LoginPage() {
           {/* Mobile logo */}
           <div className="flex justify-center mb-8 lg:hidden">
             <Link href="/" className="inline-flex items-center gap-2.5">
-              <div
-                className="w-8 h-8 rounded-lg flex items-center justify-center"
-                style={{ background: '#00e5a0' }}
-              >
-                <svg width="16" height="18" viewBox="0 0 16 18" fill="none">
-                  <path d="M4.5 7.5V5a3.5 3.5 0 0 1 7 0v2.5" stroke="white" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/>
-                  <rect x="1.5" y="7.5" width="13" height="9" rx="2.5" fill="white"/>
-                  <circle cx="8" cy="12" r="1.5" fill="#00e5a0"/>
-                  <rect x="7.25" y="12" width="1.5" height="2.5" rx="0.75" fill="#00e5a0"/>
-                </svg>
+              <div className="w-8 h-8 rounded-lg flex items-center justify-center" style={{ background: '#ff6b35' }}>
+                <Crosshair size={16} color="white" strokeWidth={2.5} />
               </div>
-              <span
-                className="font-black text-xl leading-none"
-                style={{ fontFamily: "'Inter', sans-serif", letterSpacing: '-0.5px', color: '#e8ecf0' }}
-              >
-                <span style={{ color: '#00e5a0' }}>UNIT</span>LOCKER
+              <span className="font-black text-xl leading-none" style={{ fontFamily: "'Inter', sans-serif", letterSpacing: '-0.5px', color: '#e8ecf0' }}>
+                <span style={{ color: '#ff6b35' }}>UNIT</span>LOCKER
               </span>
             </Link>
           </div>
 
-          {/* Heading */}
           <div className="mb-8">
-            <h1
-              className="text-2xl font-bold mb-1"
-              style={{ fontFamily: "'Inter', sans-serif", letterSpacing: '-0.02em', color: '#e8ecf0' }}
-            >
+            <h1 className="text-2xl font-bold mb-1" style={{ fontFamily: "'Inter', sans-serif", letterSpacing: '-0.02em', color: '#e8ecf0' }}>
               Log in to your account
             </h1>
-            <p
-              className="text-sm"
-              style={{ color: '#5a6474', fontFamily: "'DM Sans', sans-serif" }}
-            >
+            <p className="text-sm" style={{ color: '#5a6474', fontFamily: "'DM Sans', sans-serif" }}>
               Don&apos;t have an account?{' '}
               <Link
                 href="/get-started"
                 className="font-medium transition-colors duration-200"
-                style={{ color: '#00e5a0' }}
-                onMouseEnter={e => e.currentTarget.style.color = '#00f0aa'}
-                onMouseLeave={e => e.currentTarget.style.color = '#00e5a0'}
+                style={{ color: '#ff6b35' }}
+                onMouseEnter={e => e.currentTarget.style.color = '#ff7d4d'}
+                onMouseLeave={e => e.currentTarget.style.color = '#ff6b35'}
               >
-                Sign up free
+                Sign up
               </Link>
             </p>
           </div>
 
-          {/* Form */}
           <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-
             {/* Email */}
             <div className="flex flex-col gap-1">
-              <label
-                className="text-xs font-medium tracking-widest uppercase"
-                style={{ color: '#5a6474', fontFamily: "'DM Mono', monospace" }}
-              >
+              <label className="text-xs font-medium tracking-widest uppercase" style={{ color: '#5a6474', fontFamily: "'DM Mono', monospace" }}>
                 Email
               </label>
               <div className="relative">
@@ -284,8 +230,8 @@ export default function LoginPage() {
                     fontFamily: "'DM Sans', sans-serif",
                   }}
                   onFocus={e => {
-                    e.target.style.borderColor = 'rgba(0,229,160,0.4)';
-                    e.target.style.boxShadow = '0 0 0 3px rgba(0,229,160,0.07)';
+                    e.target.style.borderColor = 'rgba(255,107,53,0.4)';
+                    e.target.style.boxShadow = '0 0 0 3px rgba(255,107,53,0.07)';
                   }}
                   onBlurCapture={e => {
                     if (!getEmailMessage()) e.target.style.borderColor = '#1e242c';
@@ -297,26 +243,21 @@ export default function LoginPage() {
                 )}
               </div>
               {getEmailMessage() && (
-                <p className="text-xs" style={{ color: '#ff4757', fontFamily: "'DM Sans', sans-serif" }}>
-                  {getEmailMessage()}
-                </p>
+                <p className="text-xs" style={{ color: '#ff4757', fontFamily: "'DM Sans', sans-serif" }}>{getEmailMessage()}</p>
               )}
             </div>
 
             {/* Password */}
             <div className="flex flex-col gap-1">
               <div className="flex items-center justify-between">
-                <label
-                  className="text-xs font-medium tracking-widest uppercase"
-                  style={{ color: '#5a6474', fontFamily: "'DM Mono', monospace" }}
-                >
+                <label className="text-xs font-medium tracking-widest uppercase" style={{ color: '#5a6474', fontFamily: "'DM Mono', monospace" }}>
                   Password
                 </label>
                 <Link
                   href="/forgot-password"
                   className="text-xs transition-colors duration-200"
                   style={{ color: '#5a6474', fontFamily: "'DM Sans', sans-serif" }}
-                  onMouseEnter={e => e.currentTarget.style.color = '#00e5a0'}
+                  onMouseEnter={e => e.currentTarget.style.color = '#ff6b35'}
                   onMouseLeave={e => e.currentTarget.style.color = '#5a6474'}
                 >
                   Forgot password?
@@ -341,8 +282,8 @@ export default function LoginPage() {
                     fontFamily: "'DM Sans', sans-serif",
                   }}
                   onFocus={e => {
-                    e.target.style.borderColor = 'rgba(0,229,160,0.4)';
-                    e.target.style.boxShadow = '0 0 0 3px rgba(0,229,160,0.07)';
+                    e.target.style.borderColor = 'rgba(255,107,53,0.4)';
+                    e.target.style.boxShadow = '0 0 0 3px rgba(255,107,53,0.07)';
                   }}
                   onBlurCapture={e => {
                     if (!getPasswordMessage()) e.target.style.borderColor = '#1e242c';
@@ -362,13 +303,10 @@ export default function LoginPage() {
                 </button>
               </div>
               {getPasswordMessage() && (
-                <p className="text-xs" style={{ color: '#ff4757', fontFamily: "'DM Sans', sans-serif" }}>
-                  {getPasswordMessage()}
-                </p>
+                <p className="text-xs" style={{ color: '#ff4757', fontFamily: "'DM Sans', sans-serif" }}>{getPasswordMessage()}</p>
               )}
             </div>
 
-            {/* Error / success message */}
             {message && (
               <div
                 className="px-4 py-3 rounded-lg text-sm"
@@ -383,25 +321,24 @@ export default function LoginPage() {
               </div>
             )}
 
-            {/* Submit */}
             <button
               type="submit"
               disabled={loading}
               className="w-full py-3 rounded-lg font-semibold text-sm transition-all duration-200 mt-1"
               style={{
-                background: loading ? 'rgba(0,229,160,0.5)' : '#00e5a0',
+                background: loading ? 'rgba(255,107,53,0.5)' : '#ff6b35',
                 color: '#0a0c0f',
                 fontFamily: "'DM Sans', sans-serif",
                 cursor: loading ? 'not-allowed' : 'pointer',
               }}
               onMouseEnter={e => {
                 if (!loading) {
-                  e.currentTarget.style.background = '#00f0aa';
-                  e.currentTarget.style.boxShadow = '0 0 24px rgba(0,229,160,0.3)';
+                  e.currentTarget.style.background = '#ff7d4d';
+                  e.currentTarget.style.boxShadow = '0 0 24px rgba(255,107,53,0.35)';
                 }
               }}
               onMouseLeave={e => {
-                e.currentTarget.style.background = loading ? 'rgba(0,229,160,0.5)' : '#00e5a0';
+                e.currentTarget.style.background = loading ? 'rgba(255,107,53,0.5)' : '#ff6b35';
                 e.currentTarget.style.boxShadow = 'none';
               }}
             >
@@ -409,20 +346,16 @@ export default function LoginPage() {
             </button>
           </form>
 
-          {/* Sign up link */}
-          <p
-            className="text-center text-sm mt-6"
-            style={{ color: '#5a6474', fontFamily: "'DM Sans', sans-serif" }}
-          >
+          <p className="text-center text-sm mt-6" style={{ color: '#5a6474', fontFamily: "'DM Sans', sans-serif" }}>
             Don&apos;t have an account?{' '}
             <Link
               href="/get-started"
               className="font-medium transition-colors duration-200"
-              style={{ color: '#00e5a0' }}
-              onMouseEnter={e => e.currentTarget.style.color = '#00f0aa'}
-              onMouseLeave={e => e.currentTarget.style.color = '#00e5a0'}
+              style={{ color: '#ff6b35' }}
+              onMouseEnter={e => e.currentTarget.style.color = '#ff7d4d'}
+              onMouseLeave={e => e.currentTarget.style.color = '#ff6b35'}
             >
-              Sign up free
+              Sign up
             </Link>
           </p>
         </div>

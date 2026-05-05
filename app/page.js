@@ -16,7 +16,7 @@ export default function Home() {
 
   useEffect(() => {
     if (!loading && user) {
-      router.replace("/dashboard");
+      router.replace("/picks");
     }
   }, [user, loading, router]);
 

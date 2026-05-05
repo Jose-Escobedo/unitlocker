@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useState } from "react";
-import { Menu, X, User } from "lucide-react";
+import { Menu, X, User, Crosshair } from "lucide-react";
 import LogoutButton from "@/components/LogoutButton";
 import { useAuth } from "@/context/AuthContext";
 
@@ -18,7 +18,7 @@ export default function Navbar() {
   // #5a6474  — muted text
   // #8a95a3  — dim text
   // #e8ecf0  — primary text
-  // #00e5a0  — accent green
+  // #ff6b35  — accent green
 
   const AuthSkeleton = () => (
     <div className="flex space-x-3">
@@ -47,7 +47,7 @@ export default function Navbar() {
   ];
 
   const authLinks = [
-    { href: "/dashboard", label: "Dashboard" },
+    { href: "/picks", label: "Picks" },
     { href: "/blog", label: "Blog" },
   ];
 
@@ -66,23 +66,12 @@ export default function Navbar() {
       <nav className="max-w-7xl mx-auto flex items-center justify-between h-16">
 
         {/* Logo */}
-        <Link href={user ? "/dashboard" : "/"} className="inline-flex items-center gap-2.5 flex-shrink-0">
+        <Link href={user ? "/picks" : "/"} className="inline-flex items-center gap-2.5 flex-shrink-0">
           <div
             className="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0"
-            style={{ background: "#00e5a0" }}
+            style={{ background: "#ff6b35" }}
           >
-            <svg width="16" height="18" viewBox="0 0 16 18" fill="none">
-              <path
-                d="M4.5 7.5V5a3.5 3.5 0 0 1 7 0v2.5"
-                stroke="white"
-                strokeWidth="1.8"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              />
-              <rect x="1.5" y="7.5" width="13" height="9" rx="2.5" fill="white" />
-              <circle cx="8" cy="12" r="1.5" fill="#00e5a0" />
-              <rect x="7.25" y="12" width="1.5" height="2.5" rx="0.75" fill="#00e5a0" />
-            </svg>
+            <Crosshair size={16} color="white" strokeWidth={2.5} />
           </div>
           <span
             className="font-black text-xl leading-none"
@@ -92,7 +81,7 @@ export default function Navbar() {
               color: "#e8ecf0",
             }}
           >
-            <span style={{ color: "#00e5a0" }}>UNIT</span>LOCKER
+            <span style={{ color: "#ff6b35" }}>UNIT</span>LOCKER
           </span>
         </Link>
 
@@ -110,7 +99,7 @@ export default function Navbar() {
                   color: "#a8b3bf",
                   fontFamily: "'DM Sans', sans-serif",
                 }}
-                onMouseEnter={e => (e.currentTarget.style.color = "#00e5a0")}
+                onMouseEnter={e => (e.currentTarget.style.color = "#ff6b35")}
                 onMouseLeave={e => (e.currentTarget.style.color = "#a8b3bf")}
               >
                 {label}
@@ -151,17 +140,17 @@ export default function Navbar() {
                 href="/get-started"
                 className="px-4 py-2 text-sm font-semibold rounded-lg transition-all duration-200"
                 style={{
-                  background: "#00e5a0",
+                  background: "#ff6b35",
                   color: "#0a0c0f",
                   fontFamily: "'DM Sans', sans-serif",
                 }}
                 onMouseEnter={e => {
-                  e.currentTarget.style.boxShadow = "0 0 24px rgba(0,229,160,0.35)";
-                  e.currentTarget.style.background = "#00f0aa";
+                  e.currentTarget.style.boxShadow = "0 0 24px rgba(255,107,53,0.35)";
+                  e.currentTarget.style.background = "#ff7d4d";
                 }}
                 onMouseLeave={e => {
                   e.currentTarget.style.boxShadow = "none";
-                  e.currentTarget.style.background = "#00e5a0";
+                  e.currentTarget.style.background = "#ff6b35";
                 }}
               >
                 Get Started
@@ -177,8 +166,8 @@ export default function Navbar() {
               }}
               title="Profile"
               onMouseEnter={e => {
-                e.currentTarget.style.background = "rgba(0,229,160,0.1)";
-                e.currentTarget.style.borderColor = "rgba(0,229,160,0.3)";
+                e.currentTarget.style.background = "rgba(255,107,53,0.1)";
+                e.currentTarget.style.borderColor = "rgba(255,107,53,0.3)";
               }}
               onMouseLeave={e => {
                 e.currentTarget.style.background = "#111418";
@@ -224,7 +213,7 @@ export default function Navbar() {
                 fontFamily: "'DM Sans', sans-serif",
               }}
               onMouseEnter={e => {
-                e.currentTarget.style.color = "#00e5a0";
+                e.currentTarget.style.color = "#ff6b35";
               }}
               onMouseLeave={e => {
                 e.currentTarget.style.color = "#a8b3bf";
@@ -247,7 +236,7 @@ export default function Navbar() {
                   onClick={() => setIsOpen(false)}
                   className="w-full text-center py-3 text-sm font-semibold rounded-lg transition-all duration-200"
                   style={{
-                    background: "#00e5a0",
+                    background: "#ff6b35",
                     color: "#0a0c0f",
                     fontFamily: "'DM Sans', sans-serif",
                   }}
