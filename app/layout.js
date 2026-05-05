@@ -36,7 +36,7 @@ export const metadata = {
     type: 'website',
     images: [
       {
-        url: '/og-image.png', // Make sure to add a cool OG image later!
+        url: 'https://firebasestorage.googleapis.com/v0/b/tortas-bffc7.appspot.com/o/og-image%20unit%20locker.png?alt=media&token=723747e5-2d4f-4e1b-b799-6757eb2ce6d1',
         width: 1200,
         height: 630,
         alt: 'UnitLocker Dashboard',
