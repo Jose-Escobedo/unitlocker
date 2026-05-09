@@ -51,7 +51,7 @@ export default function RootLayout({ children }) {
       lang="en"
       className={`${poppins.variable} ${manrope.variable} ${inter.variable} ${dmSans.variable} ${dmMono.variable}`}
     >
-      <body className="font-sans bg-[#202228] text-white antialiased">
+      <body className="font-sans antialiased" style={{ background: '#07080b', color: '#f5f6f8' }}>
         <AuthProvider>
           <Navbar />
           <main className="min-h-screen">
