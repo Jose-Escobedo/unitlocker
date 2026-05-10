@@ -213,15 +213,6 @@ export default function PickCard({ pick }) {
             }}>
               {pick.stat.toUpperCase()}
             </div>
-            {pick.odds && (
-              <div style={{
-                fontSize: 10.5, color: 'rgba(245,246,248,0.35)',
-                letterSpacing: '0.04em', marginTop: 2,
-                fontFamily: "'DM Mono', monospace",
-              }}>
-                {pick.odds > 0 ? `+${pick.odds}` : pick.odds}{pick.book ? ` · ${pick.book}` : ''}
-              </div>
-            )}
           </div>
         </div>
 

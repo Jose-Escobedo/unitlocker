@@ -4,6 +4,17 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
 import { Eye, EyeOff, CheckCircle, Crosshair, Flame, Rss } from "lucide-react";
+
+function LogoMark({ size = 18 }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none"
+      stroke="currentColor" strokeWidth={1.5} strokeLinecap="round" strokeLinejoin="round">
+      <circle cx="12" cy="12" r="9" />
+      <circle cx="12" cy="12" r="4" fill="currentColor" stroke="none" />
+      <path d="M12 3v3M12 18v3M3 12h3M18 12h3" />
+    </svg>
+  );
+}
 import Link from "next/link";
 
 export default function LoginPage() {
@@ -123,11 +134,17 @@ export default function LoginPage() {
         {/* Logo */}
         <div className="relative">
           <Link href="/" className="inline-flex items-center gap-2.5">
-            <div className="w-9 h-9 rounded-lg flex items-center justify-center" style={{ background: '#ff6b35' }}>
-              <Crosshair size={18} color="white" strokeWidth={2.5} />
+            <div style={{
+              width: 36, height: 36, borderRadius: 9, flexShrink: 0,
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              background: 'linear-gradient(135deg, #ff6b35, #cc3d10)',
+              color: '#0b0d12',
+              boxShadow: '0 4px 14px rgba(255,107,53,0.35), inset 0 1px 0 rgba(255,255,255,0.25)',
+            }}>
+              <LogoMark size={18} />
             </div>
-            <span className="font-black text-xl leading-none" style={{ fontFamily: "'Inter', sans-serif", letterSpacing: '-0.5px', color: '#e8ecf0' }}>
-              <span style={{ color: '#ff6b35' }}>UNIT</span>LOCKER
+            <span style={{ fontWeight: 600, letterSpacing: '0.06em', fontSize: 14, fontFamily: "'Inter', sans-serif", color: '#f5f6f8' }}>
+              UNIT<b style={{ fontWeight: 800 }}>LOCKER</b>
             </span>
           </Link>
         </div>
@@ -179,11 +196,17 @@ export default function LoginPage() {
           {/* Mobile logo */}
           <div className="flex justify-center mb-8 lg:hidden">
             <Link href="/" className="inline-flex items-center gap-2.5">
-              <div className="w-8 h-8 rounded-lg flex items-center justify-center" style={{ background: '#ff6b35' }}>
-                <Crosshair size={16} color="white" strokeWidth={2.5} />
+              <div style={{
+                width: 32, height: 32, borderRadius: 9, flexShrink: 0,
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                background: 'linear-gradient(135deg, #ff6b35, #cc3d10)',
+                color: '#0b0d12',
+                boxShadow: '0 4px 14px rgba(255,107,53,0.35), inset 0 1px 0 rgba(255,255,255,0.25)',
+              }}>
+                <LogoMark size={16} />
               </div>
-              <span className="font-black text-xl leading-none" style={{ fontFamily: "'Inter', sans-serif", letterSpacing: '-0.5px', color: '#e8ecf0' }}>
-                <span style={{ color: '#ff6b35' }}>UNIT</span>LOCKER
+              <span style={{ fontWeight: 600, letterSpacing: '0.06em', fontSize: 14, fontFamily: "'Inter', sans-serif", color: '#f5f6f8' }}>
+                UNIT<b style={{ fontWeight: 800 }}>LOCKER</b>
               </span>
             </Link>
           </div>
