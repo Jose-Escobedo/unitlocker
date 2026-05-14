@@ -228,6 +228,26 @@ export default function StatsModal({ pick, onClose }) {
             <BarChart data={active.data} line={pick.line} />
           </div>
 
+          {/* Branding */}
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, margin: '10px 0 4px', opacity: 0.55 }}>
+            <div style={{
+              width: 24, height: 24, borderRadius: 7, flexShrink: 0,
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              background: 'linear-gradient(135deg, #ff6b35, #cc3d10)',
+              color: '#0b0d12',
+              boxShadow: '0 4px 14px rgba(255,107,53,0.35), inset 0 1px 0 rgba(255,255,255,0.25)',
+            }}>
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                <circle cx="12" cy="12" r="9" />
+                <circle cx="12" cy="12" r="4" fill="currentColor" stroke="none" />
+                <path d="M12 3v3M12 18v3M3 12h3M18 12h3" />
+              </svg>
+            </div>
+            <span style={{ fontWeight: 600, letterSpacing: '0.06em', fontSize: 11, fontFamily: "'Inter', sans-serif", color: '#f5f6f8' }}>
+              UNIT<b style={{ fontWeight: 800 }}>LOCKER</b>
+            </span>
+          </div>
+
           {/* Summary stats */}
           {(stats.avgL10 != null || stats.diff != null || stats.h2h != null) && (
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 8, marginTop: 12 }}>
