@@ -35,6 +35,7 @@ const PickSchema = new mongoose.Schema(
 
     bookieUrl: { type: String, default: null },
     notes: { type: String, default: null, trim: true },
+    stats: { type: mongoose.Schema.Types.Mixed, default: null },
   },
   { timestamps: true }
 );

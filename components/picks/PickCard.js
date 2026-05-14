@@ -1,7 +1,8 @@
 'use client';
 
 import { useState } from 'react';
-import { Crosshair, CircleDot, Dribbble, Sword, Users } from 'lucide-react';
+import { Crosshair, CircleDot, Dribbble, Sword, Users, BarChart2 } from 'lucide-react';
+import StatsModal from './StatsModal';
 
 const SPORT_CONFIG = {
   CS2: { label: 'CS2', color: '#ff6b35', secondary: '#cc3d10', glow: 'rgba(255,107,53,0.35)', bg: '#ff6b3518', Icon: Crosshair },
@@ -10,22 +11,19 @@ const SPORT_CONFIG = {
   MLB: { label: 'MLB', color: '#f5c842', secondary: '#c49a1a', glow: 'rgba(245,200,66,0.35)', bg: '#f5c84218', Icon: Sword },
 };
 
-const CONFIDENCE_LABELS = ['', 'Risky', 'Lean', 'Solid', 'Strong', 'Lock'];
-const UNIT_CHIPS = [0.5, 1, 1.5, 2, 3, 5];
+const STATS_CONFIG = [
+  { key: 'avgL10', label: 'Avg L10' },
+  { key: 'diff',   label: 'Diff'    },
+  { key: 'l5',     label: 'L5'      },
+  { key: 'l10',    label: 'L10'     },
+  { key: 'l15',    label: 'L15'     },
+  { key: 'h2h',    label: 'H2H'     },
+];
 
 function FireIcon() {
   return (
     <svg width="10" height="10" viewBox="0 0 24 24" fill="currentColor">
       <path d="M12 2c-.5 2-2 3.5-3.5 5C7 8.5 6 10 6 12c0 3.3 2.7 6 6 6s6-2.7 6-6c0-1.5-.5-2.8-1.3-3.8C15.5 7 14 5.5 12 2z" />
-    </svg>
-  );
-}
-
-function ChevronIcon({ open }) {
-  return (
-    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"
-      style={{ transform: open ? 'rotate(180deg)' : 'rotate(0deg)', transition: 'transform 0.2s' }}>
-      <polyline points="6 9 12 15 18 9" />
     </svg>
   );
 }
@@ -64,25 +62,77 @@ function ConfidenceBars({ value, color, glow }) {
   );
 }
 
+function StatsGrid({ stats }) {
+  const cols = STATS_CONFIG.filter(s => stats[s.key] != null);
+  if (cols.length === 0) return null;
+
+  return (
+    <div style={{
+      borderRadius: 10,
+      overflow: 'hidden',
+      border: '1px solid rgba(255,255,255,0.06)',
+    }}>
+      {/* Header row */}
+      <div style={{
+        display: 'grid',
+        gridTemplateColumns: `repeat(${cols.length}, 1fr)`,
+        background: 'rgba(255,255,255,0.03)',
+        borderBottom: '1px solid rgba(255,255,255,0.05)',
+      }}>
+        {cols.map((s, i) => (
+          <div key={s.key} style={{
+            padding: '6px 4px',
+            textAlign: 'center',
+            fontSize: 9.5,
+            fontWeight: 500,
+            letterSpacing: '0.07em',
+            color: 'rgba(245,246,248,0.4)',
+            fontFamily: "'DM Mono', monospace",
+            borderRight: i < cols.length - 1 ? '1px solid rgba(255,255,255,0.04)' : 'none',
+          }}>
+            {s.label}
+          </div>
+        ))}
+      </div>
+
+      {/* Value row */}
+      <div style={{
+        display: 'grid',
+        gridTemplateColumns: `repeat(${cols.length}, 1fr)`,
+      }}>
+        {cols.map((s, i) => {
+          const val = stats[s.key];
+          const isPercent = typeof val === 'string' && val.includes('%');
+          return (
+            <div key={s.key} style={{
+              padding: '9px 4px',
+              textAlign: 'center',
+              fontSize: 13,
+              fontWeight: 600,
+              color: isPercent ? '#00e5a0' : '#f5f6f8',
+              fontFamily: "'DM Mono', monospace",
+              background: isPercent
+                ? 'linear-gradient(180deg, rgba(0,229,160,0.12) 0%, rgba(0,229,160,0.04) 100%)'
+                : 'transparent',
+              borderRight: i < cols.length - 1 ? '1px solid rgba(255,255,255,0.04)' : 'none',
+            }}>
+              {val}
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
 export default function PickCard({ pick }) {
-  const [calcOpen, setCalcOpen] = useState(false);
-  const [units, setUnits] = useState(1);
-  const [bankroll, setBankroll] = useState(1000);
   const [hovered, setHovered] = useState(false);
+  const [statsOpen, setStatsOpen] = useState(false);
+  const hasHistory = pick.stats?.history?.length > 0;
 
   const sport = SPORT_CONFIG[pick.sport] ?? SPORT_CONFIG.CS2;
   const isOver = pick.prediction === 'Over';
   const predColor = isOver ? '#00e5a0' : '#ff4757';
-
-  // Unit calculator math
-  const unitDollar = bankroll * 0.01;
-  const stake = unitDollar * units;
-  const odds = pick.odds || -110;
-  const profit = odds > 0 ? stake * (odds / 100) : stake * (100 / Math.abs(odds));
-  const payout = stake + profit;
-
-  const stepUnits = (delta) =>
-    setUnits((u) => Math.min(10, Math.max(0.5, +(u + delta).toFixed(1))));
 
   return (
     <article
@@ -216,235 +266,60 @@ export default function PickCard({ pick }) {
           </div>
         </div>
 
-        {/* Notes */}
+        {/* Notes + Stats */}
         {pick.notes && (
-          <div style={{
-            position: 'relative',
-            padding: '10px 12px 10px 16px',
-            background: 'rgba(255,255,255,0.025)',
-            border: '1px solid rgba(255,255,255,0.06)',
-            borderRadius: 10,
-          }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
             <div style={{
-              position: 'absolute', left: 0, top: 8, bottom: 8, width: 2,
-              background: `linear-gradient(180deg, ${sport.color}, transparent)`,
-              borderRadius: 2,
-              boxShadow: `0 0 6px ${sport.glow}`,
-            }} />
-            <p style={{
-              margin: 0, fontSize: 12, color: 'rgba(245,246,248,0.78)',
-              lineHeight: 1.55, fontFamily: "'DM Mono', monospace",
-            }}>
-              {pick.notes}
-            </p>
-          </div>
-        )}
-
-        {/* Unit Calculator */}
-        <div style={{ display: 'flex', flexDirection: 'column' }}>
-          <button
-            onClick={() => setCalcOpen((v) => !v)}
-            style={{
-              display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-              width: '100%', padding: '11px 14px',
-              background: calcOpen ? 'rgba(255,255,255,0.04)' : 'rgba(255,255,255,0.025)',
-              border: '1px solid rgba(255,255,255,0.06)',
-              borderRadius: calcOpen ? '10px 10px 0 0' : 10,
-              borderBottomColor: calcOpen ? 'transparent' : 'rgba(255,255,255,0.06)',
-              color: calcOpen ? '#f5f6f8' : 'rgba(245,246,248,0.78)',
-              fontSize: 11, letterSpacing: '0.1em', fontWeight: 500,
-              cursor: 'pointer', transition: 'all .2s',
-              fontFamily: "'DM Mono', monospace",
-            }}
-          >
-            <span style={{ display: 'inline-flex', alignItems: 'center', gap: 8 }}>
-              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round">
-                <path d="M4 19V10M10 19V5M16 19v-7M22 19H2" />
-              </svg>
-              UNIT CALCULATOR
-            </span>
-            <ChevronIcon open={calcOpen} />
-          </button>
-
-          <div style={{
-            overflow: 'hidden',
-            maxHeight: calcOpen ? 280 : 0,
-            transition: 'max-height 0.3s ease',
-          }}>
-            <div style={{
-              padding: 14,
-              background: 'rgba(255,255,255,0.02)',
-              border: '1px solid rgba(255,255,255,0.06)',
-              borderTop: '1px dashed rgba(255,255,255,0.10)',
-              borderRadius: '0 0 10px 10px',
-              display: 'flex', flexDirection: 'column', gap: 12,
-            }}>
-              {/* Stepper + Bankroll row */}
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12 }}>
-                <div style={{
-                  display: 'inline-flex', alignItems: 'center', gap: 4,
-                  background: 'rgba(0,0,0,0.3)', border: '1px solid rgba(255,255,255,0.06)',
-                  borderRadius: 10, padding: 3,
-                }}>
-                  <button
-                    onClick={() => stepUnits(-0.5)}
-                    style={{
-                      width: 28, height: 28, borderRadius: 7,
-                      background: 'transparent', border: 0, cursor: 'pointer',
-                      color: 'rgba(245,246,248,0.78)', fontSize: 16, fontWeight: 500,
-                    }}
-                    aria-label="Decrease"
-                  >−</button>
-                  <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '0 10px', minWidth: 56 }}>
-                    <span style={{ fontFamily: "'DM Mono', monospace", fontSize: 16, fontWeight: 600, color: '#f5f6f8', lineHeight: 1.1 }}>
-                      {units.toFixed(1)}
-                    </span>
-                    <span style={{ fontFamily: "'DM Mono', monospace", fontSize: 9, color: 'rgba(245,246,248,0.35)', letterSpacing: '0.1em' }}>
-                      UNIT{units !== 1 ? 'S' : ''}
-                    </span>
-                  </div>
-                  <button
-                    onClick={() => stepUnits(0.5)}
-                    style={{
-                      width: 28, height: 28, borderRadius: 7,
-                      background: 'transparent', border: 0, cursor: 'pointer',
-                      color: 'rgba(245,246,248,0.78)', fontSize: 16, fontWeight: 500,
-                    }}
-                    aria-label="Increase"
-                  >+</button>
-                </div>
-
-                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 3 }}>
-                  <label style={{ fontFamily: "'DM Mono', monospace", fontSize: 9, color: 'rgba(245,246,248,0.35)', letterSpacing: '0.1em' }}>
-                    BANKROLL
-                  </label>
-                  <div style={{
-                    display: 'inline-flex', alignItems: 'center', gap: 4,
-                    padding: '5px 10px',
-                    background: 'rgba(0,0,0,0.3)', border: '1px solid rgba(255,255,255,0.06)',
-                    borderRadius: 8, fontFamily: "'DM Mono', monospace",
-                  }}>
-                    <span style={{ color: 'rgba(245,246,248,0.35)', fontSize: 12 }}>$</span>
-                    <input
-                      type="number"
-                      value={bankroll}
-                      step="50"
-                      min="100"
-                      onChange={(e) => setBankroll(Math.max(100, Number(e.target.value) || 100))}
-                      style={{
-                        width: 70, background: 'transparent', border: 0, outline: 'none',
-                        color: '#f5f6f8', fontFamily: "'DM Mono', monospace",
-                        fontSize: 13, fontWeight: 500, textAlign: 'right',
-                        MozAppearance: 'textfield',
-                      }}
-                    />
-                  </div>
-                </div>
-              </div>
-
-              {/* Unit chips */}
-              <div style={{ display: 'flex', gap: 4 }}>
-                {UNIT_CHIPS.map((u) => (
-                  <button
-                    key={u}
-                    onClick={() => setUnits(u)}
-                    style={{
-                      flex: 1, padding: '6px 4px', fontSize: 11, fontWeight: 500,
-                      background: units === u
-                        ? `linear-gradient(180deg, ${sport.glow}, transparent)`
-                        : 'rgba(255,255,255,0.025)',
-                      border: `1px solid ${units === u ? sport.color : 'rgba(255,255,255,0.06)'}`,
-                      borderRadius: 7,
-                      color: units === u ? '#f5f6f8' : 'rgba(245,246,248,0.55)',
-                      cursor: 'pointer',
-                      boxShadow: units === u ? `0 0 12px ${sport.glow}` : 'none',
-                      fontFamily: "'DM Mono', monospace",
-                    }}
-                  >
-                    {u}u
-                  </button>
-                ))}
-              </div>
-
-              {/* Summary row */}
-              <div style={{
-                display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-                paddingTop: 10, borderTop: '1px dashed rgba(255,255,255,0.08)',
-              }}>
-                {[
-                  { label: 'STAKE', value: `$${stake.toFixed(2)}`, highlight: false },
-                  { label: 'TO WIN', value: `$${profit.toFixed(2)}`, highlight: false },
-                  { label: 'PAYOUT', value: `$${payout.toFixed(2)}`, highlight: true },
-                ].map(({ label, value, highlight }) => (
-                  <div key={label} style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-                    <span style={{ fontFamily: "'DM Mono', monospace", fontSize: 9, color: 'rgba(245,246,248,0.35)', letterSpacing: '0.1em' }}>
-                      {label}
-                    </span>
-                    <b style={{
-                      fontSize: 14, fontWeight: 600,
-                      color: highlight ? '#00e5a0' : '#f5f6f8',
-                      fontFamily: "'DM Mono', monospace",
-                      textShadow: highlight ? '0 0 12px rgba(0,229,160,0.3)' : 'none',
-                    }}>
-                      {value}
-                    </b>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* CTA */}
-        {pick.bookieUrl ? (
-          <a
-            href={pick.bookieUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            style={{
               position: 'relative',
-              padding: '13px 18px',
-              borderRadius: 12,
-              border: `1px solid ${sport.color}`,
-              cursor: 'pointer',
-              fontSize: 13.5, fontWeight: 600, letterSpacing: '0.01em',
-              background: `linear-gradient(180deg, ${sport.glow}, rgba(0,0,0,0))`,
-              color: '#f5f6f8',
-              display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
-              textDecoration: 'none',
-              boxShadow: `0 4px 20px ${sport.glow}`,
-              fontFamily: "'Inter', sans-serif",
-            }}
-          >
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-              <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
-              <path d="M7 11V7a5 5 0 0 1 10 0v4" />
-            </svg>
-            Lock Pick
-          </a>
-        ) : (
-          <div style={{
-            padding: '13px 18px', borderRadius: 12,
-            border: '1px solid rgba(0,229,160,0.4)',
-            background: 'linear-gradient(180deg, rgba(0,229,160,0.18), rgba(0,229,160,0.05))',
-            color: '#00e5a0',
-            boxShadow: '0 0 24px rgba(0,229,160,0.18), inset 0 1px 0 rgba(0,229,160,0.2)',
-            display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
-            fontSize: 13.5, fontWeight: 600,
-            fontFamily: "'Inter', sans-serif",
-          }}>
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-              <path d="M5 12l5 5 9-11" />
-            </svg>
-            Pick Posted
+              padding: '10px 12px 10px 16px',
+              background: 'rgba(255,255,255,0.025)',
+              border: '1px solid rgba(255,255,255,0.06)',
+              borderRadius: 10,
+            }}>
+              <div style={{
+                position: 'absolute', left: 0, top: 8, bottom: 8, width: 2,
+                background: `linear-gradient(180deg, ${sport.color}, transparent)`,
+                borderRadius: 2,
+                boxShadow: `0 0 6px ${sport.glow}`,
+              }} />
+              <p style={{
+                margin: 0, fontSize: 12, color: 'rgba(245,246,248,0.78)',
+                lineHeight: 1.55, fontFamily: "'DM Mono', monospace",
+              }}>
+                {pick.notes}
+              </p>
+            </div>
+
+            {pick.stats && <StatsGrid stats={pick.stats} />}
           </div>
         )}
-      </div>
 
-      <style>{`
-        input[type=number]::-webkit-inner-spin-button,
-        input[type=number]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
-      `}</style>
+        {/* View history button */}
+        {hasHistory && (
+          <button
+            onClick={() => setStatsOpen(true)}
+            style={{
+              display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 7,
+              width: '100%', padding: '10px',
+              background: 'transparent',
+              border: `1px solid rgba(255,255,255,0.07)`,
+              borderRadius: 10,
+              cursor: 'pointer',
+              fontSize: 11, fontWeight: 600, letterSpacing: '0.1em',
+              color: 'rgba(245,246,248,0.4)',
+              fontFamily: "'DM Mono', monospace",
+              transition: 'all .2s',
+            }}
+            onMouseEnter={e => { e.currentTarget.style.borderColor = `${sport.color}60`; e.currentTarget.style.color = sport.color; }}
+            onMouseLeave={e => { e.currentTarget.style.borderColor = 'rgba(255,255,255,0.07)'; e.currentTarget.style.color = 'rgba(245,246,248,0.4)'; }}
+          >
+            <BarChart2 size={12} strokeWidth={2} />
+            VIEW PLAYER HISTORY
+          </button>
+        )}
+
+        {statsOpen && <StatsModal pick={pick} onClose={() => setStatsOpen(false)} />}
+      </div>
     </article>
   );
 }

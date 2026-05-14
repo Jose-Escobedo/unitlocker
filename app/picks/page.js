@@ -5,15 +5,17 @@ import { useRouter } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
 import PickCard from '@/components/picks/PickCard';
 import Link from 'next/link';
-import { Target, Flame, RefreshCw, Zap, Crosshair, CircleDot, Dribbble, Sword } from 'lucide-react';
+import { Target, Flame, RefreshCw, Zap, Crosshair, CircleDot, Dribbble, Sword, Shield, Disc } from 'lucide-react';
 
-const SPORTS = ['All', 'CS2', 'NBA', 'NHL', 'MLB'];
+const SPORTS = ['All', 'CS2', 'NBA', 'NHL', 'MLB', 'NFL', 'Tennis'];
 
 const SPORT_COLORS = {
   CS2: '#ff6b35',
   NBA: '#00e5a0',
   NHL: '#4da6ff',
   MLB: '#f5c842',
+  NFL: '#7c3aed',
+  Tennis: '#bef264',
 };
 
 const SPORT_ICONS = {
@@ -21,6 +23,8 @@ const SPORT_ICONS = {
   NBA: Dribbble,
   NHL: CircleDot,
   MLB: Sword,
+  NFL: Shield,
+  Tennis: Disc,
 };
 
 function SkeletonCard() {
@@ -94,41 +98,8 @@ function ResultBadge({ result }) {
   );
 }
 
-function RecentResults({ results }) {
-  if (!results || results.length === 0) return null;
-  return (
-    <div style={{ marginBottom: 24 }}>
-      <div style={{
-        display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12,
-        fontSize: 11, fontWeight: 600, letterSpacing: '0.14em', color: 'rgba(245,246,248,0.35)',
-        fontFamily: "'DM Mono', monospace",
-      }}>
-        RECENT RESULTS
-      </div>
-      <div style={{ borderRadius: 14, overflow: 'hidden', background: 'rgba(20,22,28,0.55)', border: '1px solid rgba(255,255,255,0.06)' }}>
-        {results.map((pick, i) => (
-          <div key={pick._id} style={{
-            display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-            padding: '12px 16px',
-            borderBottom: i < results.length - 1 ? '1px solid rgba(255,255,255,0.05)' : 'none',
-          }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 12, minWidth: 0 }}>
-              <span style={{ fontSize: 11, fontWeight: 700, flexShrink: 0, color: SPORT_COLORS[pick.sport] ?? '#ff6b35', fontFamily: "'DM Mono', monospace" }}>
-                {pick.sport}
-              </span>
-              <span style={{ fontSize: 13, fontWeight: 600, color: 'rgba(245,246,248,0.78)', fontFamily: "'DM Sans', sans-serif" }}>
-                {pick.playerName}
-              </span>
-              <span className="hidden sm:block" style={{ fontSize: 11, color: 'rgba(245,246,248,0.35)', fontFamily: "'DM Mono', monospace" }}>
-                {pick.prediction} {pick.line} {pick.stat}
-              </span>
-            </div>
-            <ResultBadge result={pick.status} />
-          </div>
-        ))}
-      </div>
-    </div>
-  );
+function RecentResults() {
+  return null;
 }
 
 function FadeIn({ children, delay = 0 }) {
@@ -171,13 +142,29 @@ export default function PicksPage() {
   const router = useRouter();
 
   const [picks, setPicks] = useState([]);
-  const [recentResults, setRecentResults] = useState([]);
   const [fetching, setFetching] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
   const [activeSport, setActiveSport] = useState('All');
   const [error, setError] = useState(null);
+  const [overflowOpen, setOverflowOpen] = useState(false);
 
   const cache = useRef({});
+  const overflowBtnRef = useRef(null);
+
+  useEffect(() => {
+    if (!overflowOpen) return;
+    const close = (e) => {
+      if (overflowBtnRef.current && !overflowBtnRef.current.contains(e.target)) {
+        setOverflowOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', close);
+    document.addEventListener('touchstart', close);
+    return () => {
+      document.removeEventListener('mousedown', close);
+      document.removeEventListener('touchstart', close);
+    };
+  }, [overflowOpen]);
 
   const loadPicks = async (sport, force = false) => {
     const key = sport || 'All';
@@ -189,25 +176,11 @@ export default function PicksPage() {
     setError(null);
     try {
       const sportParam = sport === 'All' ? '' : sport;
-      const [pendingRes, settledRes] = await Promise.all([
-        fetch(`/api/picks?status=pending${sportParam ? `&sport=${sportParam}` : ''}&limit=20`),
-        fetch(`/api/picks?status=won&limit=5`),
-      ]);
+      const pendingRes = await fetch(`/api/picks?status=pending${sportParam ? `&sport=${sportParam}` : ''}&limit=20`);
       if (!pendingRes.ok) throw new Error('Failed to load picks');
       const pendingData = await pendingRes.json();
-      const settledData = settledRes.ok ? await settledRes.json() : { picks: [] };
-      const lostRes = await fetch(`/api/picks?status=lost&limit=5`);
-      const lostData = lostRes.ok ? await lostRes.json() : { picks: [] };
-      const pushRes = await fetch(`/api/picks?status=push&limit=5`);
-      const pushData = pushRes.ok ? await pushRes.json() : { picks: [] };
-      const allSettled = [
-        ...(settledData.picks || []),
-        ...(lostData.picks || []),
-        ...(pushData.picks || []),
-      ].sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt)).slice(0, 5);
       cache.current[key] = pendingData.picks || [];
       setPicks(pendingData.picks || []);
-      if (sport === 'All' || !sport) setRecentResults(allSettled);
     } catch (e) {
       setError(e.message);
     } finally {
@@ -250,7 +223,7 @@ export default function PicksPage() {
   const regularPicks = picks.filter(p => !p.isHot);
 
   return (
-    <main style={{ minHeight: '100vh', paddingTop: 64, paddingBottom: 80, background: '#07080b', position: 'relative' }}>
+    <main style={{ minHeight: '100vh', paddingTop: 64, paddingBottom: 80, background: '#07080b', position: 'relative', overflowX: 'hidden' }}>
 
       {/* Atmosphere orbs */}
       <div style={{ position: 'fixed', inset: 0, zIndex: 0, pointerEvents: 'none', overflow: 'hidden', opacity: 0.7 }} aria-hidden>
@@ -269,8 +242,8 @@ export default function PicksPage() {
       </div>
 
       {/* Page header */}
-      <div style={{ position: 'relative', zIndex: 1 }}>
-        <div style={{ maxWidth: 1100, margin: '0 auto', padding: '36px 32px 0' }}>
+      <div style={{ position: 'relative', zIndex: 10 }}>
+        <div className="page-inner" style={{ maxWidth: 1100, margin: '0 auto', padding: '36px 32px 0' }}>
 
           {/* Title row */}
           <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 16, marginBottom: 16 }}>
@@ -337,17 +310,13 @@ export default function PicksPage() {
           </div>
 
           {/* Filter tabs */}
-          <div style={{
-            display: 'flex', gap: 4,
-            padding: 4,
-            background: 'rgba(255,255,255,0.025)',
-            border: '1px solid rgba(255,255,255,0.06)',
-            borderRadius: 12,
-            width: 'fit-content',
-            overflowX: 'auto',
-            marginBottom: 0,
-          }}>
-            {SPORTS.map((s) => {
+          {(() => {
+            const VISIBLE_COUNT = 3;
+            const overflowSports = SPORTS.slice(VISIBLE_COUNT);
+            const activeInOverflow = overflowSports.includes(activeSport);
+            const overflowColor = activeInOverflow ? SPORT_COLORS[activeSport] : null;
+
+            const renderTab = (s) => {
               const active = s === activeSport;
               const sportColor = SPORT_COLORS[s];
               const SportIcon = SPORT_ICONS[s];
@@ -356,7 +325,7 @@ export default function PicksPage() {
               return (
                 <button
                   key={s}
-                  onClick={() => setActiveSport(s)}
+                  onClick={() => { setActiveSport(s); setOverflowOpen(false); }}
                   style={{
                     flexShrink: 0,
                     display: 'inline-flex', alignItems: 'center', gap: 7,
@@ -376,13 +345,7 @@ export default function PicksPage() {
                     fontFamily: "'DM Mono', monospace",
                   }}
                 >
-                  {SportIcon && (
-                    <SportIcon
-                      size={11}
-                      strokeWidth={2.5}
-                      style={{ color: active ? sportColor : 'inherit', flexShrink: 0 }}
-                    />
-                  )}
+                  {SportIcon && <SportIcon size={11} strokeWidth={2.5} style={{ color: active ? sportColor : 'inherit', flexShrink: 0 }} />}
                   <span>{s}</span>
                   {!fetching && count > 0 && (
                     <span style={{
@@ -396,13 +359,112 @@ export default function PicksPage() {
                   )}
                 </button>
               );
-            })}
-          </div>
+            };
+
+            return (
+              <div style={{ display: 'inline-flex', gap: 4, padding: 4, background: 'rgba(255,255,255,0.025)', border: '1px solid rgba(255,255,255,0.06)', borderRadius: 12 }}>
+                {/* First 4 tabs — always visible */}
+                {SPORTS.slice(0, VISIBLE_COUNT).map(s => renderTab(s))}
+
+                {/* Remaining tabs — desktop only, no inline style so CSS can properly hide them */}
+                <span className="tabs-desktop-extra">
+                  {SPORTS.slice(VISIBLE_COUNT).map(s => renderTab(s))}
+                </span>
+
+                {/* Three-dot overflow — mobile only */}
+                <div ref={overflowBtnRef} className="tab-overflow-wrap" style={{ position: 'relative' }}>
+                  <button
+                    onClick={() => setOverflowOpen(o => !o)}
+                    style={{
+                      flexShrink: 0,
+                      display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
+                      width: 36, height: 36,
+                      border: 0,
+                      cursor: 'pointer',
+                      borderRadius: 8,
+                      letterSpacing: '0.08em',
+                      color: overflowColor ?? (overflowOpen ? '#f5f6f8' : 'rgba(245,246,248,0.55)'),
+                      background: overflowOpen || activeInOverflow
+                        ? 'linear-gradient(180deg, rgba(255,255,255,0.06), rgba(255,255,255,0.02))'
+                        : 'transparent',
+                      boxShadow: activeInOverflow
+                        ? `0 0 0 1px rgba(255,255,255,0.10), 0 0 18px ${overflowColor}26`
+                        : overflowOpen ? '0 0 0 1px rgba(255,255,255,0.10)' : 'none',
+                      transition: 'all .2s',
+                      fontFamily: "'DM Mono', monospace",
+                      fontSize: 14,
+                    }}
+                    aria-label="More sports"
+                  >
+                    •••
+                  </button>
+
+                  {overflowOpen && (
+                    <div style={{
+                      position: 'absolute',
+                      top: 'calc(100% + 6px)',
+                      right: 0,
+                      zIndex: 200,
+                      background: '#13151a',
+                      border: '1px solid rgba(255,255,255,0.1)',
+                      borderRadius: 12,
+                      padding: 4,
+                      minWidth: 170,
+                      boxShadow: '0 12px 40px rgba(0,0,0,0.6)',
+                      display: 'flex',
+                      flexDirection: 'column',
+                      gap: 2,
+                    }}>
+                      {SPORTS.map((s) => {
+                        const active = s === activeSport;
+                        const sportColor = SPORT_COLORS[s];
+                        const SportIcon = SPORT_ICONS[s];
+                        const count = sportCounts[s] ?? 0;
+                        return (
+                          <button
+                            key={s}
+                            onClick={() => { setActiveSport(s); setOverflowOpen(false); }}
+                            style={{
+                              display: 'flex', alignItems: 'center', gap: 10,
+                              padding: '10px 12px',
+                              border: 0,
+                              cursor: 'pointer',
+                              borderRadius: 8,
+                              background: active ? 'rgba(255,255,255,0.06)' : 'transparent',
+                              color: active ? '#f5f6f8' : 'rgba(245,246,248,0.65)',
+                              fontFamily: "'DM Mono', monospace",
+                              fontSize: 12.5, fontWeight: active ? 600 : 500,
+                              transition: 'background .15s',
+                              width: '100%',
+                              textAlign: 'left',
+                            }}
+                          >
+                            {SportIcon && <SportIcon size={12} strokeWidth={2.5} style={{ color: active ? sportColor : 'rgba(245,246,248,0.35)', flexShrink: 0 }} />}
+                            <span style={{ flex: 1 }}>{s}</span>
+                            {!fetching && count > 0 && (
+                              <span style={{
+                                fontSize: 10.5, padding: '1px 6px', borderRadius: 999,
+                                background: active && sportColor ? `${sportColor}33` : 'rgba(255,255,255,0.06)',
+                                color: active && sportColor ? sportColor : 'rgba(245,246,248,0.35)',
+                              }}>
+                                {count}
+                              </span>
+                            )}
+                            {active && <span style={{ width: 5, height: 5, borderRadius: '50%', background: sportColor, flexShrink: 0 }} />}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  )}
+                </div>
+              </div>
+            );
+          })()}
         </div>
       </div>
 
       {/* Content */}
-      <div style={{ position: 'relative', zIndex: 1, maxWidth: 1100, margin: '0 auto', padding: '28px 32px 0' }}>
+      <div className="page-inner" style={{ position: 'relative', zIndex: 1, maxWidth: 1100, margin: '0 auto', padding: '28px 32px 0' }}>
 
         {fetching && (
           <div className="picks-grid" style={{ display: 'grid', gap: 18 }}>
@@ -470,11 +532,6 @@ export default function PicksPage() {
           </>
         )}
 
-        {!fetching && activeSport === 'All' && (
-          <div style={{ marginTop: 40 }}>
-            <RecentResults results={recentResults} />
-          </div>
-        )}
       </div>
 
       <style>{`
@@ -483,7 +540,16 @@ export default function PicksPage() {
         @keyframes orbDrift1 { 0%{transform:translate(0,0)scale(1)} 100%{transform:translate(120px,80px)scale(1.1)} }
         @keyframes orbDrift2 { 0%{transform:translate(0,0)scale(1)} 100%{transform:translate(-100px,-60px)scale(1.15)} }
         .picks-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-        @media(max-width:700px){ .picks-grid { grid-template-columns: 1fr; } }
+        .tabs-desktop-extra { display: flex; gap: 4px; }
+        .tab-overflow-wrap { display: none; }
+        @media(max-width:640px){
+          .tabs-desktop-extra { display: none; }
+          .tab-overflow-wrap { display: block; }
+        }
+        @media(max-width:700px){
+          .picks-grid { grid-template-columns: 1fr; }
+          .page-inner { padding-left: 16px !important; padding-right: 16px !important; }
+        }
       `}</style>
     </main>
   );

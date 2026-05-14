@@ -44,7 +44,7 @@ export default async function handler(req, res) {
   if (req.method === "POST") {
     const {
       sport, playerName, playerImage, team, matchup, eventDate,
-      stat, line, prediction, isHot, confidence, notes, bookieUrl,
+      stat, line, prediction, isHot, confidence, notes, bookieUrl, stats,
     } = req.body;
 
     if (!sport || !playerName || !team || !matchup || !eventDate || !stat || !line || !prediction) {
@@ -65,6 +65,7 @@ export default async function handler(req, res) {
       confidence: parseInt(confidence) || 3,
       notes: notes?.trim() || null,
       bookieUrl: bookieUrl?.trim() || null,
+      stats: stats || null,
       source: "staff",
       submittedBy: admin.id,
       status: "pending",
@@ -75,7 +76,7 @@ export default async function handler(req, res) {
 
   // ── PATCH: settle a pick (won/lost/push) or edit isHot/confidence ──
   if (req.method === "PATCH") {
-    const { id, status, result, isHot, confidence, notes, bookieUrl } = req.body;
+    const { id, status, result, isHot, confidence, notes, bookieUrl, stats } = req.body;
     if (!id) return res.status(400).json({ error: "Pick id required" });
 
     const update = {};
@@ -85,6 +86,7 @@ export default async function handler(req, res) {
     if (confidence !== undefined) update.confidence = parseInt(confidence);
     if (notes !== undefined) update.notes = notes;
     if (bookieUrl !== undefined) update.bookieUrl = bookieUrl;
+    if (stats !== undefined) update.stats = stats;
 
     const pick = await Pick.findByIdAndUpdate(id, update, { new: true });
     if (!pick) return res.status(404).json({ error: "Pick not found" });
