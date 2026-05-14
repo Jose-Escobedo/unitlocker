@@ -40,7 +40,7 @@ export const metadata = {
     type: 'website',
     images: [
       {
-        url: 'https://firebasestorage.googleapis.com/v0/b/tortas-bffc7.appspot.com/o/og-image%20unit%20locker.png?alt=media&token=723747e5-2d4f-4e1b-b799-6757eb2ce6d1',
+        url: 'https://firebasestorage.googleapis.com/v0/b/tortas-bffc7.appspot.com/o/ogimageunitlocker.png?alt=media&token=a99881d7-92d8-457e-a604-670e720c037e',
         width: 1200,
         height: 630,
         alt: 'UnitLocker — Daily Prop Picks Feed',
