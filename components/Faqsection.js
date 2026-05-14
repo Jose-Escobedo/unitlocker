@@ -13,8 +13,8 @@ const faqs = [
     a: "Fire Picks are auto-detected based on real performance data. If a player has hit 90% or more of their last 10 games over (or under) their line, they earn the fire badge and get pinned to the top of the feed. No manual ratings — just data.",
   },
   {
-    q: "When is UnitLocker Pro launching?",
-    a: "We're focused on delivering the best pick feed experience first. Pro is on the roadmap — hit the notify button on the pricing section and you'll be first to know when it drops. Early members get priority access.",
+    q: "How do I get access to the picks feed?",
+    a: "UnitLocker Pro is live now. Head to the pricing section, pick monthly or annual, and get instant access to the full picks feed.",
   },
   {
     q: "Who posts the picks?",

@@ -40,7 +40,7 @@ export default function Navbar() {
 
   const guestLinks = [
     { href: "/#features", label: "Features" },
-    { href: "/pricing", label: "Pricing" },
+    { href: "/#pricing", label: "Pricing" },
     { href: "/blog", label: "Blog" },
   ];
 
@@ -51,7 +51,7 @@ export default function Navbar() {
 
   const navLinks = user ? authLinks : guestLinks;
 
-  const isActive = (href) => pathname === href || (href !== "/" && pathname.startsWith(href.split("#")[0]));
+  const isActive = (href) => !href.includes('#') && (pathname === href || (href !== "/" && pathname.startsWith(href)));
 
   return (
     <header

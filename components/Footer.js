@@ -16,7 +16,7 @@ function LogoMark({ size = 18 }) {
 const links = {
   Product: [
     { label: 'Features', href: '/features' },
-    { label: 'Pricing', href: '/pricing' },
+    { label: 'Pricing', href: '/#pricing' },
     { label: 'Blog', href: '/blog' },
   ],
   Company: [
