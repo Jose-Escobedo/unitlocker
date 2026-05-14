@@ -45,13 +45,18 @@ function LockScreen() {
     <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '0 16px', textAlign: 'center', background: '#07080b' }}>
       <div style={{
         marginBottom: 16, width: 56, height: 56, borderRadius: 18,
-        display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 24,
+        display: 'flex', alignItems: 'center', justifyContent: 'center',
         background: 'rgba(255,107,53,0.1)', border: '1px solid rgba(255,107,53,0.2)',
       }}>
-        🔒
+        <svg width={26} height={26} viewBox="0 0 24 24" fill="none"
+          stroke="#ff6b35" strokeWidth={1.5} strokeLinecap="round" strokeLinejoin="round">
+          <circle cx="12" cy="12" r="9" />
+          <circle cx="12" cy="12" r="4" fill="#ff6b35" stroke="none" />
+          <path d="M12 3v3M12 18v3M3 12h3M18 12h3" />
+        </svg>
       </div>
       <h1 style={{ margin: '0 0 8px', fontSize: 26, fontWeight: 800, color: '#f5f6f8', fontFamily: "'Inter', sans-serif", letterSpacing: '-0.03em' }}>
-        Hot Picks Feed
+        UnitLocker Feed
       </h1>
       <p style={{ margin: '0 0 24px', fontSize: 13, color: 'rgba(245,246,248,0.55)', fontFamily: "'DM Mono', monospace", maxWidth: 280, lineHeight: 1.6 }}>
         Sign in to access the daily CS2, NBA, NHL &amp; MLB prop picks feed.

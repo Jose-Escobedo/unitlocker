@@ -5,7 +5,7 @@ import { useAuth } from '@/context/AuthContext';
 import {
   User, Lock, CreditCard, Eye, EyeOff,
   CheckCircle2, Crosshair, Flame, Zap, BarChart2,
-  Rss, MessageCircle, LogOut,
+  Rss, MessageCircle, LogOut, Mail,
 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 
@@ -146,8 +146,6 @@ export default function ProfilePage() {
   const router = useRouter();
   const [tab, setTab] = useState('profile');
   const [loggingOut, setLoggingOut] = useState(false);
-  const [plan, setPlan] = useState('monthly');
-  const [checkoutLoading, setCheckoutLoading] = useState(false);
   const [portalLoading, setPortalLoading] = useState(false);
 
   const handleLogout = async () => {
@@ -158,22 +156,6 @@ export default function ProfilePage() {
       router.replace('/login');
     } catch {
       setLoggingOut(false);
-    }
-  };
-
-  const handleSubscribe = async () => {
-    setCheckoutLoading(true);
-    try {
-      const res = await fetch('/api/stripe/checkout', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ plan }),
-      });
-      const data = await res.json();
-      if (data.url) window.location.href = data.url;
-      else setCheckoutLoading(false);
-    } catch {
-      setCheckoutLoading(false);
     }
   };
 
@@ -566,33 +548,6 @@ export default function ProfilePage() {
                     </span>
                   </div>
 
-                  {/* Plan toggle */}
-                  <div className="flex gap-3 mb-5">
-                    {[
-                      { key: 'monthly', price: '$9.99', per: '/ month', badge: null },
-                      { key: 'annual',  price: '$79.99', per: '/ year', badge: 'SAVE 33%' },
-                    ].map(p => (
-                      <button key={p.key} onClick={() => setPlan(p.key)}
-                        className="flex-1 p-4 rounded-xl text-left cursor-pointer transition-all duration-200 relative overflow-hidden"
-                        style={{
-                          background: plan === p.key ? 'rgba(255,107,53,0.08)' : '#181c22',
-                          border: `1px solid ${plan === p.key ? 'rgba(255,107,53,0.35)' : '#1e242c'}`,
-                        }}>
-                        {p.badge && (
-                          <span className="absolute top-2 right-2 text-xs font-bold px-1.5 py-0.5 rounded"
-                            style={{ background: 'rgba(245,200,66,0.12)', color: '#f5c842', fontFamily: "'DM Mono', monospace", fontSize: '9px' }}>
-                            {p.badge}
-                          </span>
-                        )}
-                        <p className="font-bold text-lg leading-none mb-1"
-                          style={{ color: plan === p.key ? '#f5f6f8' : '#5a6474', fontFamily: "'Inter', sans-serif", letterSpacing: '-0.02em' }}>
-                          {p.price}
-                        </p>
-                        <p className="text-xs" style={{ color: '#5a6474', fontFamily: "'DM Mono', monospace" }}>{p.per}</p>
-                      </button>
-                    ))}
-                  </div>
-
                   {/* Features */}
                   <div className="flex flex-col gap-2.5 mb-6">
                     {PRO_FEATURES.map(({ icon: Icon, text }) => (
@@ -603,24 +558,22 @@ export default function ProfilePage() {
                     ))}
                   </div>
 
-                  {/* CTA */}
-                  <button onClick={handleSubscribe} disabled={checkoutLoading}
-                    className="w-full py-3.5 rounded-xl font-bold text-sm transition-all duration-200 cursor-pointer"
-                    style={{
-                      background: checkoutLoading ? 'rgba(255,107,53,0.5)' : 'linear-gradient(135deg, #ff6b35, #cc3d10)',
-                      color: '#0a0c0f', fontFamily: "'DM Sans', sans-serif",
-                      boxShadow: checkoutLoading ? 'none' : '0 4px 20px rgba(255,107,53,0.35)',
-                      cursor: checkoutLoading ? 'not-allowed' : 'pointer',
-                    }}
-                    onMouseEnter={e => { if (!checkoutLoading) e.currentTarget.style.boxShadow = '0 4px 28px rgba(255,107,53,0.5)'; }}
-                    onMouseLeave={e => { if (!checkoutLoading) e.currentTarget.style.boxShadow = '0 4px 20px rgba(255,107,53,0.35)'; }}
-                  >
-                    {checkoutLoading ? 'Redirecting to checkout…' : `Unlock the Feed — ${plan === 'annual' ? '$79.99 / year' : '$9.99 / month'}`}
-                  </button>
-
-                  <p className="text-xs text-center mt-3" style={{ color: '#2a3240', fontFamily: "'DM Mono', monospace" }}>
-                    {plan === 'annual' ? '$6.67 / mo · billed annually · ' : 'Billed monthly · '}cancel anytime · Secure checkout via Stripe
-                  </p>
+                  {/* Beta notice */}
+                  <div className="flex flex-col items-center gap-3 p-4 rounded-xl text-center"
+                    style={{ background: '#181c22', border: '1px solid #1e242c' }}>
+                    <div className="w-9 h-9 rounded-lg flex items-center justify-center flex-shrink-0"
+                      style={{ background: 'rgba(255,107,53,0.1)', color: '#ff6b35' }}>
+                      <Mail size={16} />
+                    </div>
+                    <div>
+                      <p className="font-semibold text-sm mb-1" style={{ color: '#e8ecf0', fontFamily: "'Inter', sans-serif" }}>
+                        Currently in beta testing
+                      </p>
+                      <p className="text-xs" style={{ color: '#5a6474', fontFamily: "'DM Sans', sans-serif", lineHeight: 1.6 }}>
+                        Subscriptions aren&apos;t open yet. You&apos;ll be notified at your email when beta launches.
+                      </p>
+                    </div>
+                  </div>
                 </div>
               </div>
             )}
