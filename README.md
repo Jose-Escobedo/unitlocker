@@ -1,36 +1,67 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+# UnitLocker
+
+A mobile-first sports prop picks platform. Staff post daily picks across CS2, NBA, NHL, MLB, NFL, and Tennis — authenticated users get access to the live feed, player stat history, and confidence-rated analysis.
+
+## Features
+
+- **Hot Picks Feed** — auth-gated daily prop picks with confidence ratings, fire badges, and sport filters
+- **Player History Modal** — per-pick bar chart showing last 5, last 10, and H2H game logs with over/under visualization
+- **Stats Grid** — inline Avg L10, Diff, L5/L10/L15, and H2H hit rates on each pick card
+- **Admin Dashboard** — create, settle (won/lost/push), and manage picks with full stat entry
+- **Sport Filters** — All, CS2, NBA, NHL, MLB, NFL, Tennis with mobile overflow menu
+- **Auth** — JWT-based login, role-based access (admin / member)
+
+## Stack
+
+- **Framework** — Next.js 16 (App Router + Pages API routes)
+- **Database** — MongoDB via Mongoose
+- **Auth** — JWT stored in HTTP-only cookies
+- **Styling** — Inline styles + Tailwind (utility classes)
+- **Icons** — Lucide React
 
 ## Getting Started
 
-First, run the development server:
-
 ```bash
+npm install
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Copy `.env.local.example` to `.env.local` and fill in:
 
-You can start editing the page by modifying `app/page.js`. The page auto-updates as you edit the file.
+```
+MONGODB_URI=
+JWT_SECRET=
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Open [http://localhost:3000](http://localhost:3000).
 
-## Learn More
+## Project Structure
 
-To learn more about Next.js, take a look at the following resources:
+```
+app/
+  picks/          # Live picks feed (auth-gated)
+  admin/          # Admin dashboard
+  login/          # Auth pages
+  get-started/
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+components/
+  picks/
+    PickCard.js   # Pick card with stats grid + history modal
+    StatsModal.js # Bottom sheet bar chart (L5 / L10 / H2H)
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+models/
+  Pick.js         # Mongoose schema (sport, line, stats, history)
+  User.js
 
-## Deploy on Vercel
+pages/api/
+  picks/          # Public picks API + seed endpoint
+  admin/picks.js  # Admin CRUD
+```
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## Seeding Dev Data
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+```bash
+curl -X POST http://localhost:3000/api/picks/seed
+```
+
+Loads 5 picks (CS2, NBA, NHL, MLB) with notes, stats, and per-game history. Remove `pages/api/picks/seed.js` before going to production.
