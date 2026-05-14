@@ -8,6 +8,9 @@ const UserSchema = new mongoose.Schema(
     role: { type: String, enum: ["user", "admin"], default: "user" },
     discordId: { type: String, default: null },
     discordUsername: { type: String, default: null },
+    stripeCustomerId: { type: String, default: null },
+    subscriptionStatus: { type: String, enum: ['active', 'inactive', 'past_due', 'canceled'], default: 'inactive' },
+    subscriptionEndsAt: { type: Date, default: null },
   },
   { timestamps: true }
 );

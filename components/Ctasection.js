@@ -72,7 +72,7 @@ export default function CTASection() {
           className="text-base mb-10 leading-relaxed"
           style={{ color: '#5a6474', fontFamily: "'DM Sans', sans-serif" }}
         >
-          Join UnitLocker and get daily CS2, NBA, NHL &amp; MLB picks — with analysis, confidence ratings, and one-tap locking.
+          Join UnitLocker and get daily CS2, NBA, NHL, MLB, NFL &amp; Tennis picks — with analysis, player history, and fire pick detection.
         </p>
 
         <div className="flex flex-col sm:flex-row gap-3 justify-center mb-10">

@@ -4,6 +4,7 @@ import { useEffect, useState, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
 import PickCard from '@/components/picks/PickCard';
+import SubscribeGate from '@/components/SubscribeGate';
 import Link from 'next/link';
 import { Target, Flame, RefreshCw, Zap, Crosshair, CircleDot, Dribbble, Sword, Shield, Disc } from 'lucide-react';
 
@@ -138,7 +139,7 @@ function SectionHeader({ icon: Icon, label, count, color = '#ff6b35', lineColor 
 }
 
 export default function PicksPage() {
-  const { user, loading: authLoading } = useAuth();
+  const { user, loading: authLoading, fetchUser } = useAuth();
   const router = useRouter();
 
   const [picks, setPicks] = useState([]);
@@ -147,6 +148,7 @@ export default function PicksPage() {
   const [activeSport, setActiveSport] = useState('All');
   const [error, setError] = useState(null);
   const [overflowOpen, setOverflowOpen] = useState(false);
+  const [showWelcome, setShowWelcome] = useState(false);
 
   const cache = useRef({});
   const overflowBtnRef = useRef(null);
@@ -194,6 +196,18 @@ export default function PicksPage() {
     loadPicks(activeSport);
   }, [user, activeSport]);
 
+  // Handle post-Stripe redirect
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('subscribed') === 'true') {
+      fetchUser();
+      setShowWelcome(true);
+      window.history.replaceState({}, '', '/picks');
+      setTimeout(() => setShowWelcome(false), 5000);
+    }
+  }, []);
+
   const handleRefresh = () => {
     setRefreshing(true);
     delete cache.current[activeSport || 'All'];
@@ -219,8 +233,18 @@ export default function PicksPage() {
 
   if (!user) return <LockScreen />;
 
-  const hotPicks = picks.filter(p => p.isHot);
-  const regularPicks = picks.filter(p => !p.isHot);
+  const isFirePick = (p) => {
+    const history = p.stats?.history;
+    if (!history || history.length < 5) return p.isHot;
+    const last10 = history.slice(-10);
+    const hits = last10.filter(d =>
+      p.prediction === 'Over' ? d.value >= p.line : d.value <= p.line
+    ).length;
+    return hits / last10.length >= 0.9;
+  };
+
+  const hotPicks = picks.filter(p => isFirePick(p));
+  const regularPicks = picks.filter(p => !isFirePick(p));
 
   return (
     <main style={{ minHeight: '100vh', paddingTop: 64, paddingBottom: 80, background: '#07080b', position: 'relative', overflowX: 'hidden' }}>
@@ -253,7 +277,7 @@ export default function PicksPage() {
                   margin: 0, fontSize: 34, fontWeight: 700, letterSpacing: '-0.02em',
                   color: '#f5f6f8', fontFamily: "'Inter', sans-serif",
                 }}>
-                  Hot Picks
+                  UnitLocker Board
                 </h1>
                 {!fetching && picks.length > 0 && (
                   <span style={{
@@ -463,22 +487,44 @@ export default function PicksPage() {
         </div>
       </div>
 
+      {/* Welcome banner after payment */}
+      {showWelcome && (
+        <div style={{
+          position: 'fixed', top: 72, left: '50%', transform: 'translateX(-50%)',
+          zIndex: 999, display: 'flex', alignItems: 'center', gap: 10,
+          padding: '12px 20px', borderRadius: 12,
+          background: 'linear-gradient(135deg, rgba(0,229,160,0.15), rgba(0,229,160,0.05))',
+          border: '1px solid rgba(0,229,160,0.35)',
+          boxShadow: '0 8px 32px rgba(0,0,0,0.5)',
+          fontSize: 13, fontWeight: 600, color: '#00e5a0',
+          fontFamily: "'Inter', sans-serif",
+          animation: 'fadeUp 0.3s ease forwards',
+          whiteSpace: 'nowrap',
+        }}>
+          <span style={{ fontSize: 16 }}>🔥</span>
+          Welcome to UnitLocker Pro — you&apos;re in.
+        </div>
+      )}
+
       {/* Content */}
       <div className="page-inner" style={{ position: 'relative', zIndex: 1, maxWidth: 1100, margin: '0 auto', padding: '28px 32px 0' }}>
 
-        {fetching && (
+        {/* Subscription gate */}
+        {user?.subscriptionStatus !== 'active' && <SubscribeGate />}
+
+        {user?.subscriptionStatus === 'active' && fetching && (
           <div className="picks-grid" style={{ display: 'grid', gap: 18 }}>
             <SkeletonCard /><SkeletonCard /><SkeletonCard /><SkeletonCard />
           </div>
         )}
 
-        {!fetching && error && (
+        {user?.subscriptionStatus === 'active' && !fetching && error && (
           <p style={{ textAlign: 'center', color: '#ff4757', fontFamily: "'DM Mono', monospace", padding: '32px 0', fontSize: 13 }}>
             {error}
           </p>
         )}
 
-        {!fetching && !error && picks.length === 0 && (
+        {user?.subscriptionStatus === 'active' && !fetching && !error && picks.length === 0 && (
           <div style={{ textAlign: 'center', padding: '64px 0' }}>
             <div style={{
               width: 48, height: 48, margin: '0 auto 16px',
@@ -496,7 +542,7 @@ export default function PicksPage() {
           </div>
         )}
 
-        {!fetching && !error && picks.length > 0 && (
+        {user?.subscriptionStatus === 'active' && !fetching && !error && picks.length > 0 && (
           <>
             {hotPicks.length > 0 && (
               <section style={{ marginBottom: 36 }}>

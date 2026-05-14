@@ -160,14 +160,14 @@ export default function LoginPage() {
             <span style={{ color: '#ff6b35' }}>Picks are live.</span>
           </h2>
           <p className="text-sm leading-relaxed max-w-sm" style={{ color: '#5a6474', fontFamily: "'DM Sans', sans-serif" }}>
-            Log in and get straight to the feed — CS2, NBA, NHL &amp; MLB picks posted daily by staff and the community.
+            Log in and get straight to the feed — CS2, NBA, NHL, MLB, NFL &amp; Tennis picks posted daily by staff.
           </p>
 
           <div className="flex flex-col gap-3 mt-2">
             {[
               { icon: <Rss size={12} />, text: 'Daily picks feed — CS2, NBA, NHL, MLB' },
               { icon: <Flame size={12} />, text: 'Fire Picks highlighted at the top' },
-              { icon: <Crosshair size={12} />, text: 'Staff and community picks' },
+              { icon: <Crosshair size={12} />, text: 'Staff picks only' },
             ].map((item, i) => (
               <div key={i} className="flex items-center gap-3">
                 <div

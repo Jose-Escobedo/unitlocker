@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { Crosshair, CircleDot, Dribbble, Sword, Users, BarChart2 } from 'lucide-react';
+import { Crosshair, CircleDot, Dribbble, Sword, BarChart2 } from 'lucide-react';
 import StatsModal from './StatsModal';
 
 const SPORT_CONFIG = {
@@ -16,7 +16,6 @@ const STATS_CONFIG = [
   { key: 'diff',   label: 'Diff'    },
   { key: 'l5',     label: 'L5'      },
   { key: 'l10',    label: 'L10'     },
-  { key: 'l15',    label: 'L15'     },
   { key: 'h2h',    label: 'H2H'     },
 ];
 
@@ -38,29 +37,6 @@ function ArrowIcon({ direction }) {
   );
 }
 
-function ConfidenceBars({ value, color, glow }) {
-  return (
-    <div style={{ display: 'inline-flex', alignItems: 'center', gap: 3 }} aria-label={`Confidence ${value} of 5`}>
-      {[0, 1, 2, 3, 4].map((i) => (
-        <span key={i} style={{
-          display: 'block',
-          width: 4, height: 14,
-          borderRadius: 2,
-          background: i < value
-            ? `linear-gradient(180deg, ${color}, ${glow.replace('0.35', '0.7')})`
-            : 'rgba(255,255,255,0.08)',
-          boxShadow: i < value ? `0 0 6px ${glow}` : 'none',
-        }} />
-      ))}
-      <span style={{
-        fontFamily: "'DM Mono', monospace", fontSize: 11,
-        color: 'rgba(245,246,248,0.35)', marginLeft: 6,
-      }}>
-        {value}<small style={{ fontSize: 9, opacity: 0.6 }}>/5</small>
-      </span>
-    </div>
-  );
-}
 
 function StatsGrid({ stats }) {
   const cols = STATS_CONFIG.filter(s => stats[s.key] != null);
@@ -203,20 +179,7 @@ export default function PickCard({ pick }) {
                 <FireIcon /> HOT
               </span>
             )}
-            {pick.source === 'community' && (
-              <span style={{
-                display: 'inline-flex', alignItems: 'center', gap: 5,
-                padding: '4px 9px', borderRadius: 999,
-                fontSize: 10.5, fontWeight: 600, letterSpacing: '0.08em',
-                background: '#4da6ff18', color: '#4da6ff',
-                border: '1px solid #4da6ff30',
-                fontFamily: "'DM Mono', monospace",
-              }}>
-                <Users size={10} strokeWidth={2.5} /> COMMUNITY
-              </span>
-            )}
           </div>
-          <ConfidenceBars value={pick.confidence} color={sport.color} glow={sport.glow} />
         </div>
 
         {/* Body: player + stat */}

@@ -4,62 +4,19 @@ import { useState } from 'react';
 import { useAuth } from '@/context/AuthContext';
 import {
   User, Lock, CreditCard, Eye, EyeOff,
-  CheckCircle2, Crosshair, Flame, Zap,
-  Layers, TrendingUp, Trophy, ChevronRight, LogOut
+  CheckCircle2, Crosshair, Flame, Zap, BarChart2,
+  Rss, MessageCircle, LogOut,
 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 
-// ── Ranks ──
-const RANKS = [
-  { name: 'ROOKIE',  min: 0,    max: 100  },
-  { name: 'GRINDER', min: 100,  max: 300  },
-  { name: 'SHARPIE', min: 300,  max: 600  },
-  { name: 'WISEGUY', min: 600,  max: 1000 },
-  { name: 'WHALE',   min: 1000, max: 2000 },
-  { name: 'LEGEND',  min: 2000, max: Infinity },
+const PRO_FEATURES = [
+  { icon: Rss,         text: 'Full picks feed — CS2, NBA, NHL, MLB, NFL & Tennis' },
+  { icon: Flame,       text: 'Fire Picks — auto-detected at 90%+ L10'             },
+  { icon: BarChart2,   text: 'Player history charts — L5, L10 & H2H'              },
+  { icon: Crosshair,   text: 'Daily CS2 kills & headshots props'                  },
+  { icon: Zap,         text: 'Multi-sport coverage, updated daily'                },
+  { icon: MessageCircle, text: 'Premium Discord community'                        },
 ];
-
-const ACHIEVEMENTS = [
-  { id: 'first_bet', icon: 'target',   name: 'First Blood',  desc: 'Log your first bet',      unlocked: true  },
-  { id: 'streak_3',  icon: 'flame',    name: 'Hot Hand',     desc: '3-bet win streak',         unlocked: true  },
-  { id: 'streak_5',  icon: 'zap',      name: 'On Fire',      desc: '5-bet win streak',         unlocked: false },
-  { id: 'ten_bets',  icon: 'layers',   name: 'Degenerate',   desc: 'Log 10 bets',              unlocked: false },
-  { id: 'doubled',   icon: 'trending', name: 'Double Up',    desc: 'Double your bankroll',     unlocked: false },
-  { id: 'fifty_bets',icon: 'trophy',   name: 'Hall of Fame', desc: 'Log 50 bets',              unlocked: false },
-];
-
-function getRank(xp) {
-  return RANKS.find((r, i) => xp >= r.min && (xp < r.max || i === RANKS.length - 1));
-}
-function getNextRank(xp) {
-  const idx = RANKS.findIndex((r, i) => xp >= r.min && (xp < r.max || i === RANKS.length - 1));
-  return RANKS[Math.min(idx + 1, RANKS.length - 1)];
-}
-
-// ── Achievement icon ──
-function AchIcon({ type, unlocked }) {
-  const color = unlocked ? '#f5c842' : '#2a3240';
-  const icons = {
-    target:   <Crosshair size={15} />,
-    flame:    <Flame size={15} />,
-    zap:      <Zap size={15} />,
-    layers:   <Layers size={15} />,
-    trending: <TrendingUp size={15} />,
-    trophy:   <Trophy size={15} />,
-  };
-  return (
-    <div
-      className="w-8 h-8 rounded-lg flex items-center justify-center"
-      style={{
-        background: unlocked ? 'rgba(245,200,66,0.1)' : '#181c22',
-        border: `1px solid ${unlocked ? 'rgba(245,200,66,0.2)' : '#1e242c'}`,
-        color,
-      }}
-    >
-      {icons[type]}
-    </div>
-  );
-}
 
 // ── Input ──
 function Input({ label, type = 'text', value, onChange, placeholder, disabled, rightEl }) {
@@ -189,6 +146,8 @@ export default function ProfilePage() {
   const router = useRouter();
   const [tab, setTab] = useState('profile');
   const [loggingOut, setLoggingOut] = useState(false);
+  const [plan, setPlan] = useState('monthly');
+  const [checkoutLoading, setCheckoutLoading] = useState(false);
 
   const handleLogout = async () => {
     setLoggingOut(true);
@@ -201,13 +160,26 @@ export default function ProfilePage() {
     }
   };
 
-  // Mock XP — replace with real data
-  const xp = 145;
-  const rank = getRank(xp);
-  const nextRank = getNextRank(xp);
-  const xpInRank = xp - rank.min;
-  const xpNeeded = nextRank.min - rank.min;
-  const xpPct = rank.name === 'LEGEND' ? 100 : Math.min(100, (xpInRank / xpNeeded) * 100);
+  const handleSubscribe = async () => {
+    setCheckoutLoading(true);
+    try {
+      const res = await fetch('/api/stripe/checkout', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ plan }),
+      });
+      const data = await res.json();
+      if (data.url) window.location.href = data.url;
+      else setCheckoutLoading(false);
+    } catch {
+      setCheckoutLoading(false);
+    }
+  };
+
+  const isActive = user?.subscriptionStatus === 'active';
+  const renewsAt = user?.subscriptionEndsAt
+    ? new Date(user.subscriptionEndsAt).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })
+    : null;
 
   // Password form state
   const [pwForm, setPwForm] = useState({ current: '', newPw: '', confirm: '' });
@@ -360,119 +332,6 @@ export default function ProfilePage() {
               </div>
             </Card>
 
-            {/* XP & Rank */}
-            <Card title="Rank & progress">
-              <div className="flex flex-col gap-4">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p
-                      className="text-2xl font-black"
-                      style={{ color: '#00e5a0', fontFamily: "'Inter', sans-serif", letterSpacing: '-0.03em' }}
-                    >
-                      {rank.name}
-                    </p>
-                    <p className="text-xs mt-0.5" style={{ color: '#5a6474', fontFamily: "'DM Mono', monospace" }}>
-                      {xp} XP total
-                    </p>
-                  </div>
-                  {rank.name !== 'LEGEND' && (
-                    <div className="text-right">
-                      <p className="text-xs" style={{ color: '#5a6474', fontFamily: "'DM Mono', monospace" }}>Next rank</p>
-                      <p className="text-sm font-semibold mt-0.5" style={{ color: '#8a95a3', fontFamily: "'Inter', sans-serif" }}>{nextRank.name}</p>
-                      <p className="text-xs mt-0.5" style={{ color: '#2a3240', fontFamily: "'DM Mono', monospace" }}>
-                        {xpNeeded - xpInRank} XP away
-                      </p>
-                    </div>
-                  )}
-                </div>
-
-                {/* XP bar */}
-                <div>
-                  <div className="flex justify-between mb-1.5">
-                    <span className="text-xs" style={{ color: '#5a6474', fontFamily: "'DM Mono', monospace' " }}>{rank.name}</span>
-                    {rank.name !== 'LEGEND' && <span className="text-xs" style={{ color: '#5a6474', fontFamily: "'DM Mono', monospace" }}>{nextRank.name}</span>}
-                  </div>
-                  <div className="h-2 rounded-full overflow-hidden" style={{ background: '#1e242c' }}>
-                    <div
-                      className="h-full rounded-full transition-all duration-700"
-                      style={{
-                        width: `${xpPct}%`,
-                        background: 'linear-gradient(90deg, #00e5a0, #00b87a)',
-                        boxShadow: '0 0 8px rgba(0,229,160,0.4)',
-                      }}
-                    />
-                  </div>
-                </div>
-
-                {/* All ranks */}
-                <div className="grid grid-cols-3 md:grid-cols-6 gap-2 mt-1">
-                  {RANKS.map((r, i) => {
-                    const isActive = r.name === rank.name;
-                    const isPast = xp >= r.max;
-                    return (
-                      <div
-                        key={r.name}
-                        className="flex flex-col items-center gap-1 py-2 px-1 rounded-lg"
-                        style={{
-                          background: isActive ? 'rgba(0,229,160,0.08)' : '#181c22',
-                          border: `1px solid ${isActive ? 'rgba(0,229,160,0.25)' : '#1e242c'}`,
-                        }}
-                      >
-                        <div
-                          className="w-5 h-5 rounded-full"
-                          style={{ background: isPast || isActive ? '#00e5a0' : '#1e242c' }}
-                        />
-                        <span
-                          style={{
-                            color: isActive ? '#00e5a0' : isPast ? '#8a95a3' : '#2a3240',
-                            fontFamily: "'DM Mono', monospace",
-                            fontSize: '8px',
-                            letterSpacing: '0.05em',
-                          }}
-                        >
-                          {r.name}
-                        </span>
-                      </div>
-                    );
-                  })}
-                </div>
-              </div>
-            </Card>
-
-            {/* Achievements */}
-            <Card title="Achievements">
-              <div className="flex flex-col gap-3">
-                {ACHIEVEMENTS.map(ach => (
-                  <div
-                    key={ach.id}
-                    className="flex items-center gap-4 py-3"
-                    style={{ borderBottom: '1px solid #1e242c' }}
-                  >
-                    <AchIcon type={ach.icon} unlocked={ach.unlocked} />
-                    <div className="flex-1">
-                      <p
-                        className="text-sm font-medium"
-                        style={{
-                          color: ach.unlocked ? '#e8ecf0' : '#2a3240',
-                          fontFamily: "'DM Sans', sans-serif",
-                        }}
-                      >
-                        {ach.name}
-                      </p>
-                      <p
-                        className="text-xs mt-0.5"
-                        style={{ color: '#5a6474', fontFamily: "'DM Sans', sans-serif" }}
-                      >
-                        {ach.desc}
-                      </p>
-                    </div>
-                    {ach.unlocked && (
-                      <CheckCircle2 size={16} style={{ color: '#00e5a0', flexShrink: 0 }} />
-                    )}
-                  </div>
-                ))}
-              </div>
-            </Card>
           </div>
         )}
 
@@ -591,134 +450,135 @@ export default function ProfilePage() {
         {/* ── PLAN TAB ── */}
         {tab === 'plan' && (
           <div className="flex flex-col gap-4">
-
-            {/* Current plan */}
-            <Card title="Current plan">
-              <div className="flex items-center justify-between gap-4 pb-5" style={{ borderBottom: '1px solid #1e242c' }}>
-                <div className="flex items-center gap-3">
-                  <div
-                    className="w-10 h-10 rounded-xl flex items-center justify-center"
-                    style={{ background: 'rgba(0,229,160,0.1)', border: '1px solid rgba(0,229,160,0.2)' }}
-                  >
-                    <CreditCard size={17} style={{ color: '#00e5a0' }} />
+            {isActive ? (
+              /* ── Active subscriber ── */
+              <Card title="Current plan">
+                <div className="flex items-center justify-between gap-4 pb-5" style={{ borderBottom: '1px solid #1e242c' }}>
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-xl flex items-center justify-center"
+                      style={{ background: 'rgba(255,107,53,0.1)', border: '1px solid rgba(255,107,53,0.2)' }}>
+                      <CreditCard size={17} style={{ color: '#ff6b35' }} />
+                    </div>
+                    <div>
+                      <p className="font-semibold text-sm" style={{ color: '#e8ecf0', fontFamily: "'Inter', sans-serif" }}>
+                        UnitLocker Pro
+                      </p>
+                      <p className="text-xs mt-0.5" style={{ color: '#5a6474', fontFamily: "'DM Mono', monospace" }}>
+                        {renewsAt ? `Renews ${renewsAt}` : 'Active subscription'}
+                      </p>
+                    </div>
                   </div>
-                  <div>
-                    <p
-                      className="font-semibold text-sm"
-                      style={{ color: '#e8ecf0', fontFamily: "'Inter', sans-serif" }}
-                    >
-                      Free Plan
-                    </p>
-                    <p className="text-xs mt-0.5" style={{ color: '#5a6474', fontFamily: "'DM Mono', monospace" }}>
-                      Free forever
-                    </p>
-                  </div>
-                </div>
-                <span
-                  className="text-xs font-medium px-2.5 py-1 rounded-full"
-                  style={{
-                    background: 'rgba(0,229,160,0.08)',
-                    border: '1px solid rgba(0,229,160,0.2)',
-                    color: '#00e5a0',
-                    fontFamily: "'DM Mono', monospace",
-                  }}
-                >
-                  Active
-                </span>
-              </div>
-
-              {/* What's included */}
-              <div className="pt-4 flex flex-col gap-2.5">
-                <p className="text-xs font-medium" style={{ color: '#5a6474', fontFamily: "'DM Mono', monospace', textTransform: 'uppercase', letterSpacing: '0.1em'" }}>
-                  INCLUDED IN FREE
-                </p>
-                {[
-                  'Bankroll tracking',
-                  'Bet logging & history',
-                  'Win / loss / streak stats',
-                  'Gamification (XP, ranks, achievements)',
-                  'All sports supported',
-                ].map((item, i) => (
-                  <div key={i} className="flex items-center gap-2.5">
-                    <CheckCircle2 size={14} style={{ color: '#00e5a0', flexShrink: 0 }} />
-                    <span className="text-sm" style={{ color: '#8a95a3', fontFamily: "'DM Sans', sans-serif" }}>{item}</span>
-                  </div>
-                ))}
-              </div>
-            </Card>
-
-            {/* Pro upsell */}
-            <div
-              className="rounded-2xl p-6 relative overflow-hidden"
-              style={{ background: '#111418', border: '1px solid rgba(245,200,66,0.2)' }}
-            >
-              <div
-                className="absolute top-0 left-0 right-0 h-px"
-                style={{ background: 'linear-gradient(90deg, transparent, #f5c842, transparent)' }}
-              />
-              <div
-                className="absolute right-6 top-1/2 -translate-y-1/2 font-black select-none pointer-events-none hidden md:block"
-                style={{ fontFamily: "'Inter', sans-serif", fontSize: '80px', color: 'rgba(245,200,66,0.03)', letterSpacing: '-0.05em' }}
-              >
-                PRO
-              </div>
-
-              <div className="flex items-start justify-between gap-4 mb-5">
-                <div>
-                  <span
-                    className="inline-flex items-center gap-1.5 text-xs font-medium px-2.5 py-1 rounded-full mb-3"
-                    style={{ background: 'rgba(245,200,66,0.1)', border: '1px solid rgba(245,200,66,0.2)', color: '#f5c842', fontFamily: "'DM Mono', monospace" }}
-                  >
-                    Coming Soon
+                  <span className="text-xs font-medium px-2.5 py-1 rounded-full"
+                    style={{ background: 'rgba(0,229,160,0.08)', border: '1px solid rgba(0,229,160,0.2)', color: '#00e5a0', fontFamily: "'DM Mono', monospace" }}>
+                    Active
                   </span>
-                  <h3
-                    className="font-bold text-lg"
-                    style={{ color: '#e8ecf0', fontFamily: "'Inter', sans-serif", letterSpacing: '-0.02em' }}
+                </div>
+
+                <div className="pt-5 flex flex-col gap-3">
+                  <p className="text-xs font-medium tracking-widest uppercase" style={{ color: '#5a6474', fontFamily: "'DM Mono', monospace" }}>
+                    What&apos;s included
+                  </p>
+                  {PRO_FEATURES.map(({ icon: Icon, text }) => (
+                    <div key={text} className="flex items-center gap-3">
+                      <div className="w-6 h-6 rounded-md flex items-center justify-center flex-shrink-0"
+                        style={{ background: 'rgba(255,107,53,0.1)', color: '#ff6b35' }}>
+                        <Icon size={12} />
+                      </div>
+                      <span className="text-sm" style={{ color: '#8a95a3', fontFamily: "'DM Sans', sans-serif" }}>{text}</span>
+                    </div>
+                  ))}
+                </div>
+
+                <div className="pt-5 mt-1" style={{ borderTop: '1px solid #1e242c' }}>
+                  <p className="text-xs" style={{ color: '#2a3240', fontFamily: "'DM Sans', sans-serif" }}>
+                    To cancel or manage your subscription, email{' '}
+                    <a href="mailto:support@unitlocker.com" style={{ color: '#5a6474' }}>support@unitlocker.com</a>
+                  </p>
+                </div>
+              </Card>
+            ) : (
+              /* ── No active subscription ── */
+              <div className="rounded-2xl overflow-hidden relative"
+                style={{ background: '#111418', border: '1px solid rgba(255,107,53,0.2)' }}>
+                <div className="h-px w-full" style={{ background: 'linear-gradient(90deg, transparent, #ff6b35, transparent)' }} />
+
+                <div className="p-6">
+                  {/* Status row */}
+                  <div className="flex items-center justify-between mb-6 pb-5" style={{ borderBottom: '1px solid #1e242c' }}>
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 rounded-xl flex items-center justify-center"
+                        style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid #1e242c' }}>
+                        <CreditCard size={17} style={{ color: '#5a6474' }} />
+                      </div>
+                      <div>
+                        <p className="font-semibold text-sm" style={{ color: '#e8ecf0', fontFamily: "'Inter', sans-serif" }}>No active plan</p>
+                        <p className="text-xs mt-0.5" style={{ color: '#5a6474', fontFamily: "'DM Mono', monospace" }}>Subscribe to access the picks feed</p>
+                      </div>
+                    </div>
+                    <span className="text-xs font-medium px-2.5 py-1 rounded-full"
+                      style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid #1e242c', color: '#5a6474', fontFamily: "'DM Mono', monospace" }}>
+                      Inactive
+                    </span>
+                  </div>
+
+                  {/* Plan toggle */}
+                  <div className="flex gap-3 mb-5">
+                    {[
+                      { key: 'monthly', price: '$9.99', per: '/ month', badge: null },
+                      { key: 'annual',  price: '$79.99', per: '/ year', badge: 'SAVE 33%' },
+                    ].map(p => (
+                      <button key={p.key} onClick={() => setPlan(p.key)}
+                        className="flex-1 p-4 rounded-xl text-left cursor-pointer transition-all duration-200 relative overflow-hidden"
+                        style={{
+                          background: plan === p.key ? 'rgba(255,107,53,0.08)' : '#181c22',
+                          border: `1px solid ${plan === p.key ? 'rgba(255,107,53,0.35)' : '#1e242c'}`,
+                        }}>
+                        {p.badge && (
+                          <span className="absolute top-2 right-2 text-xs font-bold px-1.5 py-0.5 rounded"
+                            style={{ background: 'rgba(245,200,66,0.12)', color: '#f5c842', fontFamily: "'DM Mono', monospace", fontSize: '9px' }}>
+                            {p.badge}
+                          </span>
+                        )}
+                        <p className="font-bold text-lg leading-none mb-1"
+                          style={{ color: plan === p.key ? '#f5f6f8' : '#5a6474', fontFamily: "'Inter', sans-serif", letterSpacing: '-0.02em' }}>
+                          {p.price}
+                        </p>
+                        <p className="text-xs" style={{ color: '#5a6474', fontFamily: "'DM Mono', monospace" }}>{p.per}</p>
+                      </button>
+                    ))}
+                  </div>
+
+                  {/* Features */}
+                  <div className="flex flex-col gap-2.5 mb-6">
+                    {PRO_FEATURES.map(({ icon: Icon, text }) => (
+                      <div key={text} className="flex items-center gap-3">
+                        <CheckCircle2 size={14} style={{ color: '#00e5a0', flexShrink: 0 }} />
+                        <span className="text-sm" style={{ color: '#8a95a3', fontFamily: "'DM Sans', sans-serif" }}>{text}</span>
+                      </div>
+                    ))}
+                  </div>
+
+                  {/* CTA */}
+                  <button onClick={handleSubscribe} disabled={checkoutLoading}
+                    className="w-full py-3.5 rounded-xl font-bold text-sm transition-all duration-200 cursor-pointer"
+                    style={{
+                      background: checkoutLoading ? 'rgba(255,107,53,0.5)' : 'linear-gradient(135deg, #ff6b35, #cc3d10)',
+                      color: '#0a0c0f', fontFamily: "'DM Sans', sans-serif",
+                      boxShadow: checkoutLoading ? 'none' : '0 4px 20px rgba(255,107,53,0.35)',
+                      cursor: checkoutLoading ? 'not-allowed' : 'pointer',
+                    }}
+                    onMouseEnter={e => { if (!checkoutLoading) e.currentTarget.style.boxShadow = '0 4px 28px rgba(255,107,53,0.5)'; }}
+                    onMouseLeave={e => { if (!checkoutLoading) e.currentTarget.style.boxShadow = '0 4px 20px rgba(255,107,53,0.35)'; }}
                   >
-                    Upgrade to Pro
-                  </h3>
-                  <p className="text-sm mt-1" style={{ color: '#5a6474', fontFamily: "'DM Sans', sans-serif" }}>
-                    $9.99 / month &nbsp;·&nbsp; $79.99 / year
+                    {checkoutLoading ? 'Redirecting to checkout…' : `Unlock the Feed — ${plan === 'annual' ? '$79.99 / year' : '$9.99 / month'}`}
+                  </button>
+
+                  <p className="text-xs text-center mt-3" style={{ color: '#2a3240', fontFamily: "'DM Mono', monospace" }}>
+                    {plan === 'annual' ? '$6.67 / mo · billed annually · ' : 'Billed monthly · '}cancel anytime · Secure checkout via Stripe
                   </p>
                 </div>
               </div>
-
-              <div className="flex flex-col gap-2.5 mb-5">
-                {[
-                  'Performance breakdown by sport',
-                  'Performance by bet type',
-                  'Odds range analysis',
-                  'Average stake & average odds',
-                  'Most profitable sport & bet type',
-                  'Premium Discord — picks from cappers & community',
-                ].map((item, i) => (
-                  <div key={i} className="flex items-center gap-2.5">
-                    <ChevronRight size={13} style={{ color: '#f5c842', flexShrink: 0 }} />
-                    <span className="text-sm" style={{ color: '#8a95a3', fontFamily: "'DM Sans', sans-serif" }}>{item}</span>
-                  </div>
-                ))}
-              </div>
-
-              <button
-                className="w-full py-3 rounded-xl font-semibold text-sm transition-all duration-200 cursor-pointer"
-                style={{
-                  background: 'rgba(245,200,66,0.1)',
-                  border: '1px solid rgba(245,200,66,0.25)',
-                  color: '#f5c842',
-                  fontFamily: "'DM Sans', sans-serif",
-                }}
-                onMouseEnter={e => {
-                  e.currentTarget.style.background = 'rgba(245,200,66,0.18)';
-                  e.currentTarget.style.borderColor = 'rgba(245,200,66,0.4)';
-                }}
-                onMouseLeave={e => {
-                  e.currentTarget.style.background = 'rgba(245,200,66,0.1)';
-                  e.currentTarget.style.borderColor = 'rgba(245,200,66,0.25)';
-                }}
-              >
-                Notify me at launch
-              </button>
-            </div>
+            )}
           </div>
         )}
       </div>

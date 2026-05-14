@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import {
-  Check, Rss, Crosshair, Zap, Calculator, ExternalLink, Flame,
+  Check, Rss, Crosshair, Zap, Flame,
   BarChart2, Bell, Shield, MessageCircle,
 } from 'lucide-react';
 
@@ -10,8 +10,8 @@ const proTier = [
   { icon: <Rss size={14} />, label: 'Full picks feed — CS2, NBA, NHL, MLB' },
   { icon: <Crosshair size={14} />, label: 'Daily CS2 prop picks' },
   { icon: <Zap size={14} />, label: 'Multi-sport coverage, updated daily' },
-  { icon: <Calculator size={14} />, label: 'Built-in unit calculator on every card' },
-  { icon: <Flame size={14} />, label: 'Confidence ratings (1–5u system)' },
+  { icon: <BarChart2 size={14} />, label: 'Player history charts — L5, L10 & H2H' },
+  { icon: <Flame size={14} />, label: 'Fire Picks — auto-detected at 90%+ L10' },
   { icon: <MessageCircle size={14} />, label: 'Premium Discord community' },
 ];
 
@@ -73,7 +73,7 @@ export default function PricingSection() {
             className="text-base max-w-lg mx-auto mb-8"
             style={{ color: '#5a6474', fontFamily: "'DM Sans', sans-serif" }}
           >
-            Everything in the feed — picks, analysis, confidence ratings, and one-tap locking. One subscription.
+            Everything in the feed — picks, analysis, player history charts, and Fire Pick alerts. One subscription.
           </p>
 
           <div className="inline-flex items-center gap-3">

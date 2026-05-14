@@ -3,6 +3,78 @@
 import Link from 'next/link';
 import { ArrowRight, Flame, ChevronUp, Zap, Crosshair } from 'lucide-react';
 
+// s1mple last 5 kills maps 1+2, line 22.5
+const L5_DATA = [
+  { label: 'NaVi',     value: 28 },
+  { label: 'FaZe',     value: 29 },
+  { label: 'G2',       value: 26 },
+  { label: 'Spirit',   value: 31 },
+  { label: 'Liquid',   value: 25 },
+];
+const LINE = 22.5;
+
+function MiniChart() {
+  const W = 280, H = 88, PAD_T = 20, PAD_B = 20;
+  const CHART_H = H - PAD_T - PAD_B;
+  const values = L5_DATA.map(d => d.value);
+  const rawMin = Math.min(...values, LINE);
+  const rawMax = Math.max(...values, LINE);
+  const pad = (rawMax - rawMin) * 0.4;
+  const minV = Math.max(0, rawMin - pad);
+  const maxV = rawMax + pad;
+  const range = maxV - minV;
+  const n = L5_DATA.length;
+  const gap = 8;
+  const bw = (W - (n - 1) * gap) / n;
+  const toY = v => PAD_T + CHART_H - ((v - minV) / range) * CHART_H;
+  const lineY = toY(LINE);
+
+  return (
+    <div style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.05)', borderRadius: 12, padding: '12px 10px 6px' }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6, padding: '0 2px' }}>
+        <span style={{ fontSize: 9.5, fontWeight: 600, letterSpacing: '0.1em', color: 'rgba(245,246,248,0.35)', fontFamily: "'DM Mono', monospace" }}>L5 HISTORY</span>
+        <span style={{ fontSize: 9.5, fontWeight: 600, letterSpacing: '0.08em', color: '#00e5a0', fontFamily: "'DM Mono', monospace" }}>100% L5</span>
+      </div>
+      <svg viewBox={`0 0 ${W} ${H}`} style={{ width: '100%', height: 'auto', display: 'block' }}>
+        <defs>
+          {L5_DATA.map((d, i) => {
+            const over = d.value >= LINE;
+            return (
+              <linearGradient key={i} id={`mc-${i}`} x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stopColor={over ? '#00e5a0' : '#ff4757'} stopOpacity="0.9" />
+                <stop offset="100%" stopColor={over ? '#00e5a0' : '#ff4757'} stopOpacity="0.2" />
+              </linearGradient>
+            );
+          })}
+        </defs>
+
+        {/* Prop line */}
+        <line x1={0} y1={lineY} x2={W} y2={lineY}
+          stroke="rgba(255,255,255,0.35)" strokeDasharray="4 3" strokeWidth="1.2" />
+        <rect x={W - 30} y={lineY - 9} width={30} height={13} rx={3} fill="rgba(255,255,255,0.07)" />
+        <text x={W - 15} y={lineY + 1} textAnchor="middle" fontSize={7.5} fill="rgba(255,255,255,0.6)" fontFamily="monospace" fontWeight="700">{LINE}</text>
+
+        {/* Bars */}
+        {L5_DATA.map((d, i) => {
+          const over = d.value >= LINE;
+          const x = i * (bw + gap);
+          const y = toY(d.value);
+          const barH = Math.max(toY(minV) - y, 2);
+          return (
+            <g key={i}>
+              <rect x={x} y={y} width={bw} height={barH} rx={3} fill={`url(#mc-${i})`} />
+              <text x={x + bw / 2} y={y - 4} textAnchor="middle" fontSize={8.5}
+                fill={over ? '#00e5a0' : '#ff4757'} fontFamily="monospace" fontWeight="700">{d.value}</text>
+              <text x={x + bw / 2} y={H - 2} textAnchor="middle" fontSize={7}
+                fill="rgba(245,246,248,0.25)" fontFamily="monospace">{d.label}</text>
+            </g>
+          );
+        })}
+      </svg>
+    </div>
+  );
+}
+
 function MockPickCard() {
   return (
     <div style={{
@@ -59,21 +131,17 @@ function MockPickCard() {
               <Flame size={10} /> HOT
             </span>
           </div>
-          {/* Confidence bars */}
-          <div style={{ display: 'inline-flex', alignItems: 'center', gap: 3 }}>
-            {[0,1,2,3,4].map(i => (
-              <span key={i} style={{
-                display: 'block', width: 4, height: 14, borderRadius: 2,
-                background: i < 5
-                  ? 'linear-gradient(180deg, #ff6b35, rgba(255,107,53,0.7))'
-                  : 'rgba(255,255,255,0.08)',
-                boxShadow: i < 5 ? '0 0 6px rgba(255,107,53,0.35)' : 'none',
-              }} />
-            ))}
-            <span style={{ fontFamily: "'DM Mono', monospace", fontSize: 11, color: 'rgba(245,246,248,0.35)', marginLeft: 6 }}>
-              5<small style={{ fontSize: 9, opacity: 0.6 }}>/5</small>
-            </span>
-          </div>
+          {/* L10 hit rate badge */}
+          <span style={{
+            display: 'inline-flex', alignItems: 'center', gap: 5,
+            padding: '4px 9px', borderRadius: 999,
+            fontSize: 10.5, fontWeight: 700, letterSpacing: '0.08em',
+            background: 'rgba(0,229,160,0.1)', color: '#00e5a0',
+            border: '1px solid rgba(0,229,160,0.22)',
+            fontFamily: "'DM Mono', monospace",
+          }}>
+            9/10 L10
+          </span>
         </div>
 
         {/* Player + stat */}
@@ -83,9 +151,9 @@ function MockPickCard() {
               s1mple
             </div>
             <div style={{ marginTop: 4, fontSize: 12, color: 'rgba(245,246,248,0.55)', fontFamily: "'DM Mono', monospace" }}>
-              <span style={{ color: 'rgba(245,246,248,0.78)', fontWeight: 500 }}>NAVI</span>
+              <span style={{ color: 'rgba(245,246,248,0.78)', fontWeight: 500 }}>BC Game</span>
               <span style={{ color: 'rgba(245,246,248,0.18)', margin: '0 6px' }}>·</span>
-              NAVI vs Spirit
+              BC Game vs Vitality
             </div>
           </div>
           <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 2 }}>
@@ -102,58 +170,60 @@ function MockPickCard() {
         </div>
 
         {/* Note */}
-        <div style={{
-          position: 'relative',
-          padding: '10px 12px 10px 16px',
-          background: 'rgba(255,255,255,0.025)',
-          border: '1px solid rgba(255,255,255,0.06)',
-          borderRadius: 10,
-        }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
           <div style={{
-            position: 'absolute', left: 0, top: 8, bottom: 8, width: 2,
-            background: 'linear-gradient(180deg, #ff6b35, transparent)',
-            borderRadius: 2, boxShadow: '0 0 6px rgba(255,107,53,0.35)',
-          }} />
-          <p style={{ margin: 0, fontSize: 12, color: 'rgba(245,246,248,0.78)', lineHeight: 1.55, fontFamily: "'DM Mono', monospace" }}>
-            s1mple averaging 27 kills on LAN this quarter. Spirit&apos;s CT side is leaking.
-          </p>
-        </div>
+            position: 'relative',
+            padding: '10px 12px 10px 16px',
+            background: 'rgba(255,255,255,0.025)',
+            border: '1px solid rgba(255,255,255,0.06)',
+            borderRadius: 10,
+          }}>
+            <div style={{
+              position: 'absolute', left: 0, top: 8, bottom: 8, width: 2,
+              background: 'linear-gradient(180deg, #ff6b35, transparent)',
+              borderRadius: 2, boxShadow: '0 0 6px rgba(255,107,53,0.35)',
+            }} />
+            <p style={{ margin: 0, fontSize: 12, color: 'rgba(245,246,248,0.78)', lineHeight: 1.55, fontFamily: "'DM Mono', monospace" }}>
+              s1mple averaging 27 kills maps 1+2 this tournament. Statement match vs ZywOo — BC Game need the win.
+            </p>
+          </div>
 
-        {/* Unit calc preview */}
-        <div style={{
-          display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-          padding: '10px 14px',
-          background: 'rgba(255,255,255,0.02)',
-          border: '1px solid rgba(255,255,255,0.06)',
-          borderRadius: 10,
-        }}>
-          {[
-            { label: 'STAKE', value: '$10.00' },
-            { label: 'TO WIN', value: '$9.26' },
-            { label: 'PAYOUT', value: '$19.26', green: true },
-          ].map(({ label, value, green }) => (
-            <div key={label} style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-              <span style={{ fontFamily: "'DM Mono', monospace", fontSize: 9, color: 'rgba(245,246,248,0.35)', letterSpacing: '0.1em' }}>{label}</span>
-              <b style={{ fontSize: 13, fontWeight: 600, color: green ? '#00e5a0' : '#f5f6f8', fontFamily: "'DM Mono', monospace", textShadow: green ? '0 0 12px rgba(0,229,160,0.3)' : 'none' }}>{value}</b>
+          {/* Stats grid */}
+          <div style={{ borderRadius: 10, overflow: 'hidden', border: '1px solid rgba(255,255,255,0.06)' }}>
+            <div style={{
+              display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)',
+              background: 'rgba(255,255,255,0.03)',
+              borderBottom: '1px solid rgba(255,255,255,0.05)',
+            }}>
+              {['Avg L10','Diff','L5','L10','H2H'].map((h, i, arr) => (
+                <div key={h} style={{
+                  padding: '6px 4px', textAlign: 'center',
+                  fontSize: 9.5, fontWeight: 500, letterSpacing: '0.07em',
+                  color: 'rgba(245,246,248,0.4)', fontFamily: "'DM Mono', monospace",
+                  borderRight: i < arr.length - 1 ? '1px solid rgba(255,255,255,0.04)' : 'none',
+                }}>{h}</div>
+              ))}
             </div>
-          ))}
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)' }}>
+              {[
+                { v: '27.3', pct: false }, { v: '4.8', pct: false },
+                { v: '100%',  pct: true  }, { v: '90%', pct: true  },
+                { v: '75%',  pct: true  },
+              ].map(({ v, pct }, i, arr) => (
+                <div key={i} style={{
+                  padding: '9px 4px', textAlign: 'center',
+                  fontSize: 13, fontWeight: 600, fontFamily: "'DM Mono', monospace",
+                  color: pct ? '#00e5a0' : '#f5f6f8',
+                  background: pct ? 'linear-gradient(180deg, rgba(0,229,160,0.12), rgba(0,229,160,0.04))' : 'transparent',
+                  borderRight: i < arr.length - 1 ? '1px solid rgba(255,255,255,0.04)' : 'none',
+                }}>{v}</div>
+              ))}
+            </div>
+          </div>
         </div>
 
-        {/* CTA */}
-        <div style={{
-          padding: '13px 18px', borderRadius: 12,
-          border: '1px solid rgba(0,229,160,0.4)',
-          background: 'linear-gradient(180deg, rgba(0,229,160,0.18), rgba(0,229,160,0.05))',
-          color: '#00e5a0',
-          boxShadow: '0 0 24px rgba(0,229,160,0.18), inset 0 1px 0 rgba(0,229,160,0.2)',
-          display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
-          fontSize: 13.5, fontWeight: 600, fontFamily: "'Inter', sans-serif",
-        }}>
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-            <path d="M5 12l5 5 9-11" />
-          </svg>
-          Pick Posted
-        </div>
+        {/* L5 mini chart */}
+        <MiniChart />
       </div>
     </div>
   );
@@ -271,7 +341,7 @@ export default function HeroSection() {
               fontFamily: "'DM Sans', sans-serif",
               color: 'rgba(245,246,248,0.55)',
             }}>
-              Daily CS2, NBA, NHL &amp; MLB prop picks — curated and posted to the feed. See the lines worth watching, size your bet, and lock it in one tap.
+              Daily CS2, NBA, NHL, MLB, NFL &amp; Tennis prop picks — curated and posted to the feed. Player history, hit rates, and fire pick detection on every card.
             </p>
 
             <div className="flex flex-col sm:flex-row gap-3 lg:justify-start justify-center">
@@ -317,7 +387,7 @@ export default function HeroSection() {
             {/* Stats */}
             <div className="flex items-center gap-6 mt-10 lg:justify-start justify-center">
               {[
-                { value: 'CS2 · NBA', label: 'NHL · MLB' },
+                { value: 'CS2 · NBA', label: 'NHL · MLB · NFL · Tennis' },
                 { value: 'Daily', label: 'Fresh picks' },
                 { value: 'Members', label: 'Only' },
               ].map((stat, i) => (
@@ -344,16 +414,16 @@ export default function HeroSection() {
               iconColor="#00e5a0"
               iconBg="rgba(0,229,160,0.1)"
               iconBorder="rgba(0,229,160,0.2)"
-              title="NBA · NHL · MLB"
-              subtitle="Multi-sport coverage, posted daily"
+              title="6 Sports · Daily Feed"
+              subtitle="CS2, NBA, NHL, MLB, NFL & Tennis"
             />
             <FeatureCard
               icon={Flame}
               iconColor="#ff6b35"
               iconBg="rgba(255,107,53,0.1)"
               iconBorder="rgba(255,107,53,0.2)"
-              title="Confidence Rated"
-              subtitle="1–5 unit rating on every pick"
+              title="Player History & Hit Rates"
+              subtitle="L5 · L10 · H2H charts on every pick"
             />
           </div>
 

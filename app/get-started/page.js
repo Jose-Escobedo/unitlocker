@@ -172,14 +172,14 @@ export default function SignupPage() {
             <span style={{ color: '#ff6b35' }}>Lock the line.</span>
           </h2>
           <p className="text-sm leading-relaxed max-w-sm" style={{ color: '#5a6474', fontFamily: "'DM Sans', sans-serif" }}>
-            Join the picks community. Daily CS2, NBA, NHL &amp; MLB props — curated by staff and the community. See the line, size your bet, lock it.
+            Daily CS2, NBA, NHL, MLB, NFL &amp; Tennis props — curated by staff. See the line, check the history, lock it.
           </p>
 
           <div className="flex flex-col gap-3 mt-2">
             {[
               { icon: <Rss size={12} />, text: 'Daily picks feed — CS2, NBA, NHL, MLB' },
-              { icon: <Flame size={12} />, text: 'Confidence-rated picks, 1–5u system' },
-              { icon: <Users size={12} />, text: 'Staff and community picks' },
+              { icon: <Flame size={12} />, text: 'Fire Picks — 90%+ hit rate, auto-detected' },
+              { icon: <Users size={12} />, text: 'Staff picks only — no crowd-sourced calls' },
               
             ].map((item, i) => (
               <div key={i} className="flex items-center gap-3">

@@ -9,14 +9,14 @@ const SEED_PICKS = [
     team: "NAVI",
     matchup: "NAVI vs Team Spirit",
     eventDate: new Date(),
-    stat: "Kills",
+    stat: "Kills Maps 1+2",
     line: 22.5,
     prediction: "Over",
     isHot: true,
     confidence: 5,
     notes: "s1mple averaging 27 kills on LAN this quarter. Spirit's CT side is leaking.",
     stats: {
-      avgL10: 27.3, diff: 4.8, l5: '80%', l10: '90%', l15: '80%', h2h: '75%',
+      avgL10: 27.3, diff: 4.8, l5: '80%', l10: '90%', h2h: '75%',
       history: [
         { label: 'vs NaVi',    value: 28 }, { label: 'vs Spirit',  value: 31 },
         { label: 'vs MOUZ',    value: 19 }, { label: 'vs G2',      value: 26 },
@@ -35,23 +35,23 @@ const SEED_PICKS = [
     team: "Vitality",
     matchup: "Vitality vs FaZe",
     eventDate: new Date(),
-    stat: "Rating",
-    line: 1.15,
+    stat: "Headshots Maps 1+2",
+    line: 82.5,
     prediction: "Over",
     isHot: false,
     confidence: 4,
-    notes: "ZywOo has gone over 1.15 rating in 8 of his last 10 maps.",
+    notes: "ZywOo has gone over 82.5 ADR in 8 of his last 10 maps against FaZe.",
     stats: {
-      avgL10: 1.24, diff: 0.09, l5: '100%', l10: '80%', l15: '73%', h2h: '66.7%',
+      avgL10: 89.1, diff: 6.6, l5: '100%', l10: '80%', h2h: '66.7%',
       history: [
-        { label: 'vs Spirit', value: 1.28 }, { label: 'vs FaZe',   value: 1.18 },
-        { label: 'vs MOUZ',   value: 0.99 }, { label: 'vs NaVi',   value: 1.35 },
-        { label: 'vs G2',     value: 1.22 }, { label: 'vs Liquid', value: 1.19 },
-        { label: 'vs Cloud9', value: 1.08 }, { label: 'vs Spirit', value: 1.31 },
-        { label: 'vs ENCE',   value: 1.26 }, { label: 'vs FaZe',   value: 1.14 },
+        { label: 'vs Spirit', value: 91 }, { label: 'vs FaZe',   value: 85 },
+        { label: 'vs MOUZ',   value: 74 }, { label: 'vs NaVi',   value: 97 },
+        { label: 'vs G2',     value: 88 }, { label: 'vs Liquid', value: 86 },
+        { label: 'vs Cloud9', value: 79 }, { label: 'vs Spirit', value: 94 },
+        { label: 'vs ENCE',   value: 90 }, { label: 'vs FaZe',   value: 81 },
       ],
       h2hHistory: [
-        { label: 'vs FaZe', value: 1.18 }, { label: 'vs FaZe', value: 1.31 }, { label: 'vs FaZe', value: 1.14 },
+        { label: 'vs FaZe', value: 85 }, { label: 'vs FaZe', value: 94 }, { label: 'vs FaZe', value: 81 },
       ],
     },
   },
@@ -68,7 +68,7 @@ const SEED_PICKS = [
     confidence: 4,
     notes: "Jokic feasting on Lakers. Averaged 62 PRA in last 3 matchups.",
     stats: {
-      avgL10: 61.2, diff: 6.7, l5: '100%', l10: '90%', l15: '86.7%', h2h: '100%',
+      avgL10: 61.2, diff: 6.7, l5: '100%', l10: '90%', h2h: '100%',
       history: [
         { label: 'vs BOS', value: 58 }, { label: 'vs GSW', value: 67 },
         { label: 'vs LAL', value: 72 }, { label: 'vs PHX', value: 48 },
@@ -106,7 +106,7 @@ const SEED_PICKS = [
     confidence: 4,
     notes: "MacKinnon has a point in 9 straight games.",
     stats: {
-      avgL10: 1.4, diff: 0.9, l5: '100%', l10: '90%', l15: '93.3%', h2h: '83.3%',
+      avgL10: 1.4, diff: 0.9, l5: '100%', l10: '90%', h2h: '83.3%',
       history: [
         { label: 'vs VGK', value: 2 }, { label: 'vs EDM', value: 1 },
         { label: 'vs DAL', value: 0 }, { label: 'vs NYR', value: 1 },

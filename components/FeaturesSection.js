@@ -1,8 +1,7 @@
 'use client';
 
 import {
-  Rss, Crosshair, Flame, Calculator, ExternalLink, ChevronRight,
-  BarChart2, Bell, Shield, Zap,
+  Rss, Crosshair, Flame, BarChart2, Bell, Shield, Zap,
 } from 'lucide-react';
 
 const coreFeatures = [
@@ -10,14 +9,14 @@ const coreFeatures = [
     icon: <Rss size={18} />,
     title: 'Live Picks Feed',
     desc: 'A clean, scrollable feed of daily prop picks across CS2, NBA, NHL, and MLB — posted fresh every day.',
-    bullets: ['Staff & community picks', 'Organized by sport', 'Fire Picks pinned at top'],
+    bullets: ['Staff picks only', 'Organized by sport', 'Fire Picks pinned at top'],
     color: '#ff6b35',
   },
   {
     icon: <Crosshair size={18} />,
     title: 'CS2 Props',
     desc: 'Kills, headshots, rating — CS2 player props from the biggest tournaments, with matchup context.',
-    bullets: ['Major & tier-1 tournaments', 'Staff & community picks', 'Over / Under calls'],
+    bullets: ['Major & tier-1 tournaments', 'Staff picks only', 'Over / Under calls'],
     color: '#ff6b35',
   },
   {
@@ -28,18 +27,18 @@ const coreFeatures = [
     color: '#00e5a0',
   },
   {
-    icon: <Flame size={18} />,
-    title: 'Confidence System',
-    desc: 'Every pick is rated 1–5 units. See instantly how strong the call is before you lock anything.',
-    bullets: ['1u = lean, 5u = lock', 'Hot badge on fire picks', 'At-a-glance strength signal'],
-    color: '#f5c842',
+    icon: <BarChart2 size={18} />,
+    title: 'Player History Charts',
+    desc: 'Every pick card links to a bar chart of the player\'s last 5, last 10, and H2H game logs.',
+    bullets: ['L5 · L10 · H2H tabs', 'Green = over, red = under', 'Hit rate shown per filter'],
+    color: '#4da6ff',
   },
   {
-    icon: <Calculator size={18} />,
-    title: 'Unit Calculator',
-    desc: 'Built into every card. Enter your bankroll and instantly see the suggested bet size.',
-    bullets: ['Inline, no page change', 'Auto-scales to your bankroll', 'Unit-based sizing'],
-    color: '#4da6ff',
+    icon: <Flame size={18} />,
+    title: 'Fire Pick Algorithm',
+    desc: 'Fire picks are auto-detected — if a player has hit 90%+ in their last 10, they earn the badge.',
+    bullets: ['Based on real L10 data', 'No manual ratings', 'Pinned at top of the feed'],
+    color: '#f5c842',
   },
   {
   icon: <Zap size={18} />,
@@ -140,7 +139,7 @@ export default function FeaturesSection() {
             className="text-base max-w-xl mx-auto"
             style={{ color: '#5a6474', fontFamily: "'DM Sans', sans-serif" }}
           >
-           The full picks feed, unit calculator, and a fast betting workflow — all in one place.
+           The full picks feed, player history charts, and fire pick detection — all in one place.
           </p>
         </div>
 

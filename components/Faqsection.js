@@ -9,16 +9,16 @@ const faqs = [
   a: "We post picks for CS2, NBA, NHL, MLB, NFL, and tennis. NBA, NHL, MLB, NFL, and tennis picks are posted during their active seasons. More sports may be added over time.",
 },
   {
-    q: "What is the confidence rating system?",
-    a: "Every pick is rated 1–5 units. A 1u pick is a lean — lower confidence, smaller suggested stake. A 5u pick is a lock — our highest confidence call. Fire Picks are pinned to the top of the feed and represent the strongest plays of the day.",
+    q: "How do Fire Picks work?",
+    a: "Fire Picks are auto-detected based on real performance data. If a player has hit 90% or more of their last 10 games over (or under) their line, they earn the fire badge and get pinned to the top of the feed. No manual ratings — just data.",
   },
   {
     q: "When is UnitLocker Pro launching?",
     a: "We're focused on delivering the best pick feed experience first. Pro is on the roadmap — hit the notify button on the pricing section and you'll be first to know when it drops. Early members get priority access.",
   },
   {
-    q: "Can community members post picks?",
-    a: "Yes. The feed is community-driven — members can submit picks alongside staff picks. Community picks are labeled so you always know the source. The confidence rating system applies to all picks regardless of who posted them.",
+    q: "Who posts the picks?",
+    a: "UnitLocker staff. We track player prop data across sports, identify lines with strong recent hit rates, and share them on the feed. No crowd-sourced picks — just data-driven plays we find worth posting.",
   },
   {
     q: "Can I cancel anytime?",
@@ -26,7 +26,7 @@ const faqs = [
   },
   {
     q: "What picks do you post for CS2?",
-    a: "We focus on player props from tier-1 and major tournaments — primarily kills and headshots. Picks come from both staff and the community. Some include context notes, others are a straight line with a confidence rating.",
+    a: "We focus on player props from tier-1 and major tournaments but also lower tier — kills maps 1+2 and headshots maps 1+2. All picks are staff only. Some include context notes and a player history chart showing L5, L10, and H2H data.",
   },
 ];
 

@@ -2,7 +2,7 @@ import mongoose from "mongoose";
 
 const SPORTS = ["CS2", "NBA", "NHL", "MLB"];
 
-const CS2_STATS = ["Kills", "Headshots", "Assists", "Deaths", "ADR", "Rating"];
+const CS2_STATS = ["Kills Maps 1+2", "Headshots Maps 1+2"];
 const NBA_STATS = ["Points", "Rebounds", "Assists", "3-Pointers", "Steals", "Blocks", "Pts+Reb+Ast"];
 const NHL_STATS = ["Goals", "Assists", "Points", "Shots on Goal", "Saves"];
 const MLB_STATS = ["Strikeouts", "Hits", "Home Runs", "RBI", "Walks", "Total Bases", "Pitcher Outs"];
@@ -20,7 +20,7 @@ const PickSchema = new mongoose.Schema(
     line: { type: Number, required: true },
     prediction: { type: String, enum: ["Over", "Under"], required: true },
 
-    source: { type: String, enum: ['staff', 'community'], default: 'staff' },
+    source: { type: String, enum: ['staff'], default: 'staff' },
     submittedBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User', default: null },
 
     isHot: { type: Boolean, default: false },
