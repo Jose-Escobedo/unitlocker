@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { UserPlus, Rss, LineChart, CheckCircle, ExternalLink, Trophy } from 'lucide-react';
+import { UserPlus, Rss, LineChart, CheckCircle } from 'lucide-react';
 
 const steps = [
   {
@@ -35,20 +35,11 @@ const steps = [
   number: '04',
   icon: CheckCircle,
   title: 'Clear pick breakdown',
-  desc: 'See the exact play, odds, and context instantly so you can place it fast on your book.',
-  detail: 'Every pick card is structured so you know exactly what to bet without second guessing. No digging, no confusion — just open your book and place it confidently.',
+  desc: 'See the exact play, and context instantly.',
+  detail: 'Every pick card is structured so you know exactly what the play is — no digging, no second guessing.',
   stat: '0 confusion',
   statLabel: 'when placing picks',
 },
-  {
-    number: '05',
-    icon: Trophy,
-    title: 'Track what hit',
-    desc: 'See which picks won, lost, or pushed. Watch your read improve over time.',
-    detail: 'Settled picks update with results. You can see the full history of what was posted and what hit — so you can track the feed\'s performance and get smarter every session.',
-    stat: 'Full',
-    statLabel: 'result history',
-  },
 ];
 
 export default function HowItWorks() {
@@ -111,7 +102,7 @@ export default function HowItWorks() {
             className="text-base max-w-xl mx-auto"
             style={{ color: '#5a6474', fontFamily: "'DM Sans', sans-serif" }}
           >
-            Five steps. No complexity. Browse the feed, trust the analysis, lock the line.
+            Four steps. No complexity. Browse the feed, trust the analysis, lock the line.
           </p>
         </div>
 
