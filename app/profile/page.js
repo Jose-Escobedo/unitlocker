@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useAuth } from '@/context/AuthContext';
 import {
   User, Lock, CreditCard, Eye, EyeOff,
@@ -142,12 +142,13 @@ const TABS = [
 ];
 
 export default function ProfilePage() {
-  const { user, setUser } = useAuth();
+  const { user, setUser, fetchUser } = useAuth();
   const router = useRouter();
   const [tab, setTab] = useState('profile');
   const [loggingOut, setLoggingOut] = useState(false);
   const [plan, setPlan] = useState('monthly');
   const [checkoutLoading, setCheckoutLoading] = useState(false);
+  const [portalLoading, setPortalLoading] = useState(false);
 
   const handleLogout = async () => {
     setLoggingOut(true);
@@ -176,10 +177,32 @@ export default function ProfilePage() {
     }
   };
 
+  const handleManageSubscription = async () => {
+    setPortalLoading(true);
+    try {
+      const res = await fetch('/api/stripe/portal', { method: 'POST' });
+      const data = await res.json();
+      if (data.url) window.location.href = data.url;
+      else setPortalLoading(false);
+    } catch {
+      setPortalLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('from') === 'portal') {
+      fetchUser();
+      window.history.replaceState({}, '', '/profile');
+    }
+  }, []);
+
   const isActive = user?.subscriptionStatus === 'active';
-  const renewsAt = user?.subscriptionEndsAt
+  const periodEnd = user?.subscriptionEndsAt
     ? new Date(user.subscriptionEndsAt).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })
     : null;
+  const isCancelling = user?.cancelAtPeriodEnd === true;
 
   // Password form state
   const [pwForm, setPwForm] = useState({ current: '', newPw: '', confirm: '' });
@@ -298,7 +321,7 @@ export default function ProfilePage() {
                 />
                 <p className="text-xs" style={{ color: '#2a3240', fontFamily: "'DM Sans', sans-serif" }}>
                   To update your name or email contact{' '}
-                  <a href="mailto:support@unitlocker.com" style={{ color: '#5a6474' }}>support@unitlocker.com</a>
+                  <a href="mailto:unitlocker@gmail.com" style={{ color: '#5a6474' }}>unitlocker@gmail.com</a>
                 </p>
 
                 <div className="pt-4" style={{ borderTop: '1px solid #1e242c' }}>
@@ -420,7 +443,7 @@ export default function ProfilePage() {
                     className="text-xs mt-0.5"
                     style={{ color: '#5a6474', fontFamily: "'DM Sans', sans-serif" }}
                   >
-                    Permanently delete your account and all betting data. This cannot be undone.
+                    Permanently delete your account and all data. This cannot be undone.
                   </p>
                 </div>
                 <button
@@ -463,14 +486,21 @@ export default function ProfilePage() {
                       <p className="font-semibold text-sm" style={{ color: '#e8ecf0', fontFamily: "'Inter', sans-serif" }}>
                         UnitLocker Pro
                       </p>
-                      <p className="text-xs mt-0.5" style={{ color: '#5a6474', fontFamily: "'DM Mono', monospace" }}>
-                        {renewsAt ? `Renews ${renewsAt}` : 'Active subscription'}
+                      <p className="text-xs mt-0.5" style={{ color: isCancelling ? '#f5c842' : '#5a6474', fontFamily: "'DM Mono', monospace" }}>
+                        {isCancelling
+                          ? `Cancels ${periodEnd ?? 'at period end'}`
+                          : periodEnd ? `Renews ${periodEnd}` : 'Active subscription'}
                       </p>
                     </div>
                   </div>
                   <span className="text-xs font-medium px-2.5 py-1 rounded-full"
-                    style={{ background: 'rgba(0,229,160,0.08)', border: '1px solid rgba(0,229,160,0.2)', color: '#00e5a0', fontFamily: "'DM Mono', monospace" }}>
-                    Active
+                    style={{
+                      background: isCancelling ? 'rgba(245,200,66,0.08)' : 'rgba(0,229,160,0.08)',
+                      border: `1px solid ${isCancelling ? 'rgba(245,200,66,0.25)' : 'rgba(0,229,160,0.2)'}`,
+                      color: isCancelling ? '#f5c842' : '#00e5a0',
+                      fontFamily: "'DM Mono', monospace",
+                    }}>
+                    {isCancelling ? 'Cancelling' : 'Active'}
                   </span>
                 </div>
 
@@ -490,9 +520,24 @@ export default function ProfilePage() {
                 </div>
 
                 <div className="pt-5 mt-1" style={{ borderTop: '1px solid #1e242c' }}>
-                  <p className="text-xs" style={{ color: '#2a3240', fontFamily: "'DM Sans', sans-serif" }}>
-                    To cancel or manage your subscription, email{' '}
-                    <a href="mailto:support@unitlocker.com" style={{ color: '#5a6474' }}>support@unitlocker.com</a>
+                  <button
+                    onClick={handleManageSubscription}
+                    disabled={portalLoading}
+                    className="w-full py-3 rounded-xl text-sm font-semibold transition-all duration-200 cursor-pointer"
+                    style={{
+                      background: 'rgba(255,255,255,0.04)',
+                      border: '1px solid #1e242c',
+                      color: portalLoading ? '#5a6474' : '#8a95a3',
+                      fontFamily: "'DM Sans', sans-serif",
+                      cursor: portalLoading ? 'not-allowed' : 'pointer',
+                    }}
+                    onMouseEnter={e => { if (!portalLoading) { e.currentTarget.style.borderColor = 'rgba(255,255,255,0.12)'; e.currentTarget.style.color = '#e8ecf0'; } }}
+                    onMouseLeave={e => { e.currentTarget.style.borderColor = '#1e242c'; e.currentTarget.style.color = portalLoading ? '#5a6474' : '#8a95a3'; }}
+                  >
+                    {portalLoading ? 'Opening portal…' : 'Manage subscription'}
+                  </button>
+                  <p className="text-xs text-center mt-2" style={{ color: '#2a3240', fontFamily: "'DM Mono', monospace" }}>
+                    Cancel, update payment method, or view invoices via Stripe
                   </p>
                 </div>
               </Card>

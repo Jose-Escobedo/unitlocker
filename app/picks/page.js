@@ -490,7 +490,7 @@ export default function PicksPage() {
       {/* Welcome banner after payment */}
       {showWelcome && (
         <div style={{
-          position: 'fixed', top: 72, left: '50%', transform: 'translateX(-50%)',
+          position: 'fixed', top: 72, left: 0, right: 0, margin: '0 auto', width: 'fit-content',
           zIndex: 999, display: 'flex', alignItems: 'center', gap: 10,
           padding: '12px 20px', borderRadius: 12,
           background: 'linear-gradient(135deg, rgba(0,229,160,0.15), rgba(0,229,160,0.05))',

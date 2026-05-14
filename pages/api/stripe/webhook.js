@@ -13,18 +13,44 @@ function getRawBody(req) {
   });
 }
 
-async function syncSubscription(subscription) {
+// Find user by metadata.userId first, fall back to stripeCustomerId
+async function findUser(subscription) {
+  await connectDB();
   const userId = subscription.metadata?.userId;
-  if (!userId) return;
+  if (userId) return User.findById(userId);
+  // Fallback: look up by Stripe customer ID
+  const customerId = typeof subscription.customer === 'string'
+    ? subscription.customer
+    : subscription.customer?.id;
+  if (customerId) return User.findOne({ stripeCustomerId: customerId });
+  return null;
+}
+
+async function syncSubscription(subscription) {
+  const user = await findUser(subscription);
+  if (!user) {
+    console.warn('syncSubscription: no user found for subscription', subscription.id);
+    return;
+  }
 
   const status = subscription.status === 'active' ? 'active'
     : subscription.status === 'past_due' ? 'past_due'
     : 'inactive';
 
-  await connectDB();
-  await User.findByIdAndUpdate(userId, {
+  const periodEnd = subscription.current_period_end
+    ? new Date(subscription.current_period_end * 1000)
+    : null;
+
+  await User.findByIdAndUpdate(user._id, {
     subscriptionStatus: status,
-    subscriptionEndsAt: new Date(subscription.current_period_end * 1000),
+    subscriptionEndsAt: periodEnd,
+    cancelAtPeriodEnd: subscription.cancel_at_period_end ?? false,
+    // Keep stripeCustomerId in sync in case it wasn't set yet
+    ...(user.stripeCustomerId ? {} : {
+      stripeCustomerId: typeof subscription.customer === 'string'
+        ? subscription.customer
+        : subscription.customer?.id,
+    }),
   });
 }
 
@@ -44,27 +70,32 @@ export default async function handler(req, res) {
 
   try {
     switch (event.type) {
+
       case 'checkout.session.completed': {
         const session = event.data.object;
         if (session.mode === 'subscription' && session.subscription) {
-          const subscription = await stripe.subscriptions.retrieve(session.subscription);
+          // session.subscription may be a string ID or an already-expanded object
+          const subId = typeof session.subscription === 'string'
+            ? session.subscription
+            : session.subscription.id;
+          const subscription = await stripe.subscriptions.retrieve(subId);
           await syncSubscription(subscription);
         }
         break;
       }
-      case 'customer.subscription.updated':
+
       case 'customer.subscription.created':
+      case 'customer.subscription.updated':
         await syncSubscription(event.data.object);
         break;
 
       case 'customer.subscription.deleted': {
-        const sub = event.data.object;
-        const userId = sub.metadata?.userId;
-        if (userId) {
-          await connectDB();
-          await User.findByIdAndUpdate(userId, {
+        const user = await findUser(event.data.object);
+        if (user) {
+          await User.findByIdAndUpdate(user._id, {
             subscriptionStatus: 'inactive',
             subscriptionEndsAt: null,
+            cancelAtPeriodEnd: false,
           });
         }
         break;
