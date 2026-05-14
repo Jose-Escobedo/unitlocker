@@ -13,33 +13,37 @@ const dmSans = DM_Sans({ subsets: ['latin'], weight: ['400', '600'], variable: '
 const dmMono = DM_Mono({ subsets: ['latin'], weight: ['400', '500'], variable: '--font-dm-mono', display: 'swap' });
 
 export const metadata = {
-  // Broadened Title to include "Sports"
-  title: 'UnitLocker | Hot CS2 & Sports Picks | Tactical Bankroll Management',
+  title: 'UnitLocker | Daily CS2 & Sports Prop Picks',
   description:
-    'Get high-value player props for CS2, MLB, NFL, NHL, and more. Lock your units and track your edge with the UnitLocker vault.',
+    'Daily player prop picks for CS2, NBA, NHL, MLB and more — with fire pick detection, player history charts, and L5/L10/H2H breakdowns.',
   keywords: [
-    'CS2 player props',
-    'Sleeper picks',
-    'PrizePicks data',
-    'MLB props',
-    'NFL betting lines',
-    'NHL player props',
-    'bankroll management',
     'UnitLocker',
-    'sports betting tracker',
+    'CS2 props',
+    'CS2 player props',
+    'CS2 kills props',
+    'CS2 headshots props',
+    'NBA props',
+    'NHL props',
+    'MLB props',
+    'PrizePicks picks',
+    'Underdog picks',
+    'daily prop picks',
+    'sports props',
+    'fire picks',
+    'player prop analysis',
   ],
   authors: [{ name: 'UnitLocker' }],
   creator: 'UnitLocker',
   openGraph: {
-    title: 'UnitLocker | Tactical Sports & CS2 Picks',
-    description: 'The Vault for high-value CS2, MLB, NHL, NFL, Tennis, and major sports lines.',
+    title: 'UnitLocker | Daily CS2 & Sports Prop Picks',
+    description: 'Daily CS2, NBA, NHL & MLB prop picks with fire pick detection and player history breakdowns.',
     type: 'website',
     images: [
       {
         url: 'https://firebasestorage.googleapis.com/v0/b/tortas-bffc7.appspot.com/o/og-image%20unit%20locker.png?alt=media&token=723747e5-2d4f-4e1b-b799-6757eb2ce6d1',
         width: 1200,
         height: 630,
-        alt: 'UnitLocker Dashboard',
+        alt: 'UnitLocker — Daily Prop Picks Feed',
       },
     ],
   },
