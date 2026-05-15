@@ -15,12 +15,12 @@ function LogoMark({ size = 18 }) {
 
 const links = {
   Product: [
-    { label: 'Features', href: '/features' },
-    { label: 'Pricing', href: '/#pricing' },
+    { label: 'Picks Feed', href: '/picks' },
+    { label: 'Pricing', href: '/pricing' },
     { label: 'Blog', href: '/blog' },
   ],
   Company: [
-    { label: 'Contact', href: '/contact' },
+    { label: 'Contact', href: 'mailto:unitlocker@gmail.com', external: true },
     { label: 'Privacy Policy', href: '/privacy-policy' },
     { label: 'Terms of Service', href: '/terms-of-use' },
   ],

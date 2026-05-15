@@ -123,9 +123,24 @@ export default function StatsModal({ pick, onClose }) {
   const active = TABS.find(t => t.key === tab) ?? TABS[0];
   if (!active) return null;
 
-  const overCount = active.data.filter(d => d.value >= pick.line).length;
   const isOver = pick.prediction === 'Over';
   const predColor = isOver ? '#00e5a0' : '#ff4757';
+
+  const calcWindow = (games) => {
+    if (!games.length) return null;
+    const avg = games.reduce((s, g) => s + g.value, 0) / games.length;
+    const hits = games.filter(g => isOver ? g.value >= pick.line : g.value <= pick.line).length;
+    const hr = Math.round((hits / games.length) * 100);
+    const diff = avg - pick.line;
+    return { avg, diff, hr };
+  };
+
+  const activeCalc = calcWindow(active.data);
+  const h2hCalc    = calcWindow(h2hHistory);
+  const overCount  = active.data.filter(d => d.value >= pick.line).length;
+
+  const pctColor = (n) => n >= 70 ? '#00e5a0' : n >= 55 ? '#f5c842' : '#ff4757';
+  const diffFavorable = activeCalc && (isOver ? activeCalc.diff > 0 : activeCalc.diff < 0);
 
   const modal = (
     <>
@@ -248,25 +263,38 @@ export default function StatsModal({ pick, onClose }) {
             </span>
           </div>
 
-          {/* Summary stats */}
-          {(stats.avgL10 != null || stats.diff != null || stats.h2h != null) && (
+          {/* Dynamic summary stats */}
+          {activeCalc && (
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 8, marginTop: 12 }}>
               {[
-                { label: 'AVG L10', value: stats.avgL10 },
-                { label: 'DIFF',    value: stats.diff != null ? (stats.diff > 0 ? `+${stats.diff}` : `${stats.diff}`) : null },
-                { label: 'H2H',     value: stats.h2h },
-              ].filter(s => s.value != null).map(s => (
+                {
+                  label: 'AVG',
+                  value: activeCalc.avg.toFixed(1),
+                  color: '#f5f6f8',
+                  tint: false,
+                },
+                {
+                  label: 'DIFF',
+                  value: (activeCalc.diff >= 0 ? '+' : '') + activeCalc.diff.toFixed(1),
+                  color: diffFavorable ? '#00e5a0' : Math.abs(activeCalc.diff) < 0.5 ? 'rgba(245,246,248,0.55)' : '#ff4757',
+                  tint: false,
+                },
+                {
+                  label: 'H2H',
+                  value: h2hCalc ? `${h2hCalc.hr}%` : '—',
+                  color: h2hCalc ? pctColor(h2hCalc.hr) : 'rgba(245,246,248,0.25)',
+                  tint: h2hCalc ? h2hCalc.hr >= 55 : false,
+                },
+              ].map(s => (
                 <div key={s.label} style={{
-                  background: 'rgba(255,255,255,0.03)',
-                  border: '1px solid rgba(255,255,255,0.06)',
-                  borderRadius: 12, padding: '12px 8px',
-                  textAlign: 'center',
+                  background: s.tint ? 'rgba(0,229,160,0.06)' : 'rgba(255,255,255,0.03)',
+                  border: `1px solid ${s.tint ? 'rgba(0,229,160,0.15)' : 'rgba(255,255,255,0.06)'}`,
+                  borderRadius: 12, padding: '12px 8px', textAlign: 'center',
                 }}>
                   <div style={{ fontSize: 9, fontFamily: "'DM Mono', monospace", color: 'rgba(245,246,248,0.3)', letterSpacing: '0.1em', marginBottom: 5 }}>
                     {s.label}
                   </div>
-                  <div style={{ fontSize: 17, fontWeight: 700, fontFamily: "'DM Mono', monospace",
-                    color: typeof s.value === 'string' && s.value.includes('%') ? '#00e5a0' : '#f5f6f8' }}>
+                  <div style={{ fontSize: 17, fontWeight: 700, fontFamily: "'DM Mono', monospace", color: s.color }}>
                     {s.value}
                   </div>
                 </div>

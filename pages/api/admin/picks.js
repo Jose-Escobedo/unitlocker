@@ -74,12 +74,25 @@ export default async function handler(req, res) {
     return res.status(201).json({ pick });
   }
 
-  // ── PATCH: settle a pick (won/lost/push) or edit isHot/confidence ──
+  // ── PATCH: full edit or partial update (settle, hot toggle, etc.) ──
   if (req.method === "PATCH") {
-    const { id, status, result, isHot, confidence, notes, bookieUrl, stats } = req.body;
+    const {
+      id, status, result, isHot, confidence, notes, bookieUrl, stats,
+      sport, playerName, team, matchup, eventDate, stat, line, prediction,
+    } = req.body;
     if (!id) return res.status(400).json({ error: "Pick id required" });
 
     const update = {};
+    // Core fields
+    if (sport) update.sport = sport;
+    if (playerName) update.playerName = playerName.trim();
+    if (team) update.team = team.trim();
+    if (matchup) update.matchup = matchup.trim();
+    if (eventDate) update.eventDate = new Date(eventDate);
+    if (stat) update.stat = stat.trim();
+    if (line !== undefined && line !== '') update.line = parseFloat(line);
+    if (prediction) update.prediction = prediction;
+    // Status / meta
     if (status) update.status = status;
     if (result !== undefined) update.result = result;
     if (isHot !== undefined) update.isHot = isHot;
