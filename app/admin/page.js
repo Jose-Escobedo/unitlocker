@@ -494,6 +494,15 @@ export default function AdminPage() {
     return obj;
   };
 
+  const updateHistoryEntry = (type, idx, value) => {
+    setExtractedHistory(prev => ({
+      ...prev,
+      [type]: prev[type].map((entry, i) =>
+        i === idx ? { ...entry, value: parseFloat(value) || 0 } : entry
+      ),
+    }));
+  };
+
   const handleExtracted = (data) => {
     setForm(f => ({
       ...f,
@@ -820,7 +829,7 @@ export default function AdminPage() {
                     <span style={{ fontSize: 11, fontWeight: 600, letterSpacing: '0.08em', color: '#5a6474', fontFamily: "'DM Mono', monospace" }}>
                       STATS GRID (optional)
                     </span>
-                    {(form.l5 || form.l10 || form.avgL10) && (
+                    {(form.l5 || form.l10 || form.avgL10 || extractedHistory.history.length > 0) && (
                       <span style={{ fontSize: 10, padding: '1px 6px', borderRadius: 4, background: 'rgba(255,107,53,0.1)', color: '#ff6b35', fontFamily: "'DM Mono', monospace" }}>
                         filled
                       </span>
@@ -854,6 +863,52 @@ export default function AdminPage() {
                         <Input value={form.h2h} onChange={e => setField('h2h', e.target.value)} placeholder="e.g. 67%" />
                       </Field>
                     </div>
+
+                    {/* ── Editable history bars ── */}
+                    {[
+                      { key: 'history',    label: 'MATCH HISTORY' },
+                      { key: 'h2hHistory', label: 'H2H HISTORY'   },
+                    ].map(({ key, label }) => extractedHistory[key].length > 0 && (
+                      <div key={key}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
+                          <span style={{ fontSize: 10, fontWeight: 600, letterSpacing: '0.1em', color: '#5a6474', fontFamily: "'DM Mono', monospace" }}>
+                            {label}
+                          </span>
+                          <span style={{ fontSize: 10, color: '#2a3240', fontFamily: "'DM Mono', monospace" }}>
+                            {extractedHistory[key].length} games
+                          </span>
+                        </div>
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+                          {extractedHistory[key].map((entry, idx) => {
+                            const line = parseFloat(form.line) || 0;
+                            const isOver = entry.value >= line;
+                            return (
+                              <div key={idx} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '6px 10px', borderRadius: 8, background: '#181c22', border: '1px solid #1e242c' }}>
+                                <div style={{ width: 6, height: 6, borderRadius: '50%', flexShrink: 0, background: isOver ? '#00e5a0' : '#ff4757' }} />
+                                <span style={{ flex: 1, fontSize: 11, color: '#8a95a3', fontFamily: "'DM Mono', monospace", overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                                  {entry.label}
+                                </span>
+                                <input
+                                  type="number"
+                                  step="0.5"
+                                  value={entry.value}
+                                  onChange={e => updateHistoryEntry(key, idx, e.target.value)}
+                                  style={{
+                                    width: 64, padding: '4px 8px', borderRadius: 6, fontSize: 12, fontWeight: 600,
+                                    textAlign: 'right', background: '#0a0c0f',
+                                    border: `1px solid ${isOver ? 'rgba(0,229,160,0.25)' : 'rgba(255,71,87,0.25)'}`,
+                                    color: isOver ? '#00e5a0' : '#ff4757',
+                                    fontFamily: "'DM Mono', monospace", outline: 'none',
+                                  }}
+                                  onFocus={e => (e.target.style.borderColor = 'rgba(255,107,53,0.5)')}
+                                  onBlur={e => (e.target.style.borderColor = isOver ? 'rgba(0,229,160,0.25)' : 'rgba(255,71,87,0.25)')}
+                                />
+                              </div>
+                            );
+                          })}
+                        </div>
+                      </div>
+                    ))}
                   </div>
                 )}
               </div>
