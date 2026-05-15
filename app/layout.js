@@ -25,6 +25,7 @@ export const metadata = {
     'NBA props',
     'NHL props',
     'MLB props',
+    'Tennis props',
     'PrizePicks picks',
     'Underdog picks',
     'daily prop picks',
