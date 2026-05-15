@@ -224,7 +224,17 @@ export default function PickCard({ pick }) {
                 </p>
               </div>
             )}
-            {pick.stats && <StatsGrid stats={pick.stats} prediction={pick.prediction} />}
+            {pick.stats && <StatsGrid
+              stats={{
+                ...pick.stats,
+                diff: pick.stats.diff ?? (
+                  pick.stats.avgL10 != null
+                    ? parseFloat((pick.stats.avgL10 - pick.line).toFixed(2))
+                    : undefined
+                ),
+              }}
+              prediction={pick.prediction}
+            />}
           </div>
         )}
 
