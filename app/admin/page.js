@@ -671,11 +671,14 @@ export default function AdminPage() {
           <div style={{ height: 2, background: `linear-gradient(90deg, transparent, ${accentColor} 40%, ${accentColor} 60%, transparent)` }} />
 
           {/* Form header */}
-          <button
+          <div
             onClick={() => setFormOpen(v => !v)}
+            role="button"
+            tabIndex={0}
+            onKeyDown={e => (e.key === 'Enter' || e.key === ' ') && setFormOpen(v => !v)}
             style={{
               width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-              padding: '16px 24px', background: 'none', border: 'none', cursor: 'pointer', textAlign: 'left',
+              padding: '16px 24px', cursor: 'pointer',
             }}
           >
             <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
@@ -712,7 +715,7 @@ export default function AdminPage() {
               )}
               <ChevronDown size={15} style={{ color: '#5a6474', transform: formOpen ? 'rotate(180deg)' : 'none', transition: 'transform 0.2s' }} />
             </div>
-          </button>
+          </div>
 
           {formOpen && (
             <form onSubmit={handleSubmit} style={{ padding: '0 24px 24px' }}>
